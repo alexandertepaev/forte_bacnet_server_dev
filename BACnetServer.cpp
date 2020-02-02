@@ -14,6 +14,11 @@
 #include "BACnetServer_gen.cpp"
 #endif
 
+#include "objects/bacnet_device_object.h"
+#include "bacnet_server_controller.h"
+
+const char * const FORTE_BACnetServer::scmInitFailed = "Initialization failed";
+
 DEFINE_FIRMWARE_FB(FORTE_BACnetServer, g_nStringIdBACnetServer)
 
 const CStringDictionary::TStringId FORTE_BACnetServer::scm_anDataInputNames[] = {g_nStringIdQI, g_nStringIdPort, g_nStringIdDeviceID, g_nStringIdDeviceName};
@@ -42,12 +47,48 @@ const SFBInterfaceSpec FORTE_BACnetServer::scm_stFBInterfaceSpec = {
   1,scm_astAdapterInstances};
 
 
+FORTE_BACnetServer::FORTE_BACnetServer(const CStringDictionary::TStringId pa_nInstanceNameId, CResource *pa_poSrcRes) : \
+  CFunctionBlock( pa_poSrcRes, &scm_stFBInterfaceSpec, pa_nInstanceNameId, m_anFBConnData, m_anFBVarsData), mController(NULL) {
+
+ }
+
+FORTE_BACnetServer::~FORTE_BACnetServer(){};
+
 void FORTE_BACnetServer::executeEvent(int pa_nEIID){
-  switch(pa_nEIID){
-    case scm_nEventINITID:
-      DEVLOG_DEBUG("Hello world!\n");
-      break;
+  if(pa_nEIID == scm_nEventINITID && QI() == true) {
+    
+    bool nError = init();
+    if(nError) {
+      if (BACnetAdapterOut().getPeer() == 0) {
+        //TODO no chained FBs - start controller and respond only to who-is/i-am
+        QO() = true;
+        sendOutputEvent(scm_nEventINITOID);
+        return;
+      }
+      sendAdapterEvent(scm_nBACnetAdapterOutAdpNum, FORTE_BACnetAdapter::scm_nEventINITID);    
+    } else {
+      QO() = false;
+      STATUS() = scmInitFailed;
+      sendOutputEvent(scm_nEventINITOID);
+    }
+
+  } else if(pa_nEIID == BACnetAdapterOut().INITO()) {
+      DEVLOG_DEBUG("[FORTE_BACnetServer] executeEvent(): AdapterOut INITO event\n");
+      QO() = true;
+      sendOutputEvent(scm_nEventINITOID);
   }
+}
+
+bool FORTE_BACnetServer::init() {
+  
+  mController = new CBacnetServerController();
+  
+  if(!mController->init(Port()))
+    return false;
+
+  mController->addObjectTableEntry(new CBacnetDeviceObject(DeviceID()));
+  
+  return true;
 }
 
 

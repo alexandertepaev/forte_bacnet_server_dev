@@ -15,33 +15,23 @@
 
 DEFINE_ADAPTER_TYPE(FORTE_BACnetAdapter, g_nStringIdBACnetAdapter)
 
-const CStringDictionary::TStringId FORTE_BACnetAdapter::scm_anDataInputNames[] = {g_nStringIdQO};
-
-const CStringDictionary::TStringId FORTE_BACnetAdapter::scm_anDataInputTypeIds[] = {g_nStringIdBOOL};
-
-const CStringDictionary::TStringId FORTE_BACnetAdapter::scm_anDataOutputNames[] = {g_nStringIdQI, g_nStringIdMasterId, g_nStringIdIndex};
-
-const CStringDictionary::TStringId FORTE_BACnetAdapter::scm_anDataOutputTypeIds[] = {g_nStringIdBOOL, g_nStringIdUINT, g_nStringIdUINT};
-
-const TDataIOID FORTE_BACnetAdapter::scm_anEIWith[] = {0, 255};
-const TForteInt16 FORTE_BACnetAdapter::scm_anEIWithIndexes[] = {0, -1};
+const TForteInt16 FORTE_BACnetAdapter::scm_anEIWithIndexes[] = {-1, -1};
 const CStringDictionary::TStringId FORTE_BACnetAdapter::scm_anEventInputNames[] = {g_nStringIdINITO};
 
-const TDataIOID FORTE_BACnetAdapter::scm_anEOWith[] = {0, 1, 2, 255};
-const TForteInt16 FORTE_BACnetAdapter::scm_anEOWithIndexes[] = {0, -1};
+const TForteInt16 FORTE_BACnetAdapter::scm_anEOWithIndexes[] = {-1, -1};
 const CStringDictionary::TStringId FORTE_BACnetAdapter::scm_anEventOutputNames[] = {g_nStringIdINIT};
 
 const SFBInterfaceSpec FORTE_BACnetAdapter::scm_stFBInterfaceSpecSocket = {
-  1,  scm_anEventInputNames,  scm_anEIWith,  scm_anEIWithIndexes,
-  1,  scm_anEventOutputNames,  scm_anEOWith, scm_anEOWithIndexes,  1,  scm_anDataInputNames, scm_anDataInputTypeIds,
-  3,  scm_anDataOutputNames, scm_anDataOutputTypeIds,
+  1,  scm_anEventInputNames,  0,  scm_anEIWithIndexes,
+  1,  scm_anEventOutputNames,  0, 0,  0,  0, 0, 
+  0,  0, 0,
   0, 0
 };
 
 const SFBInterfaceSpec FORTE_BACnetAdapter::scm_stFBInterfaceSpecPlug = {
-  1,  scm_anEventOutputNames,  scm_anEOWith,  scm_anEOWithIndexes,
-  1,  scm_anEventInputNames,  scm_anEIWith, scm_anEIWithIndexes,  3,  scm_anDataOutputNames, scm_anDataOutputTypeIds,
-  1,  scm_anDataInputNames, scm_anDataInputTypeIds,
+  1,  scm_anEventOutputNames,  0,  scm_anEOWithIndexes,
+  1,  scm_anEventInputNames,  0, 0,  0,  0, 0, 
+  0,  0, 0,
   0, 0
 };
 
