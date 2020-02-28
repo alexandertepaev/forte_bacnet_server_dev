@@ -14,6 +14,10 @@
 #include "BACnetBinaryValue_gen.cpp"
 #endif
 
+#include "objects/bacnet_binary_value_object.h"
+#include "bacnet_server_controller.h"
+#include "BACnetServer.h"
+
 DEFINE_FIRMWARE_FB(FORTE_BACnetBinaryValue, g_nStringIdBACnetBinaryValue)
 
 const CStringDictionary::TStringId FORTE_BACnetBinaryValue::scm_anDataInputNames[] = {g_nStringIdQI, g_nStringIdPresentValueIn, g_nStringIdInService, g_nStringIdObjectID, g_nStringIdObjectName, g_nStringIdPresentValueInit, g_nStringIdCOVReporting};
@@ -43,18 +47,49 @@ const SFBInterfaceSpec FORTE_BACnetBinaryValue::scm_stFBInterfaceSpec = {
   2,scm_astAdapterInstances};
 
 
+FORTE_BACnetBinaryValue::FORTE_BACnetBinaryValue(const CStringDictionary::TStringId pa_nInstanceNameId, CResource *pa_poSrcRes) : \
+CBacnetObjectConfigFB(pa_poSrcRes, &scm_stFBInterfaceSpec, pa_nInstanceNameId, m_anFBConnData, m_anFBVarsData), mObject(NULL) {
+}
+
+FORTE_BACnetBinaryValue::~FORTE_BACnetBinaryValue(){
+}
+
+
 void FORTE_BACnetBinaryValue::executeEvent(int pa_nEIID){
- if(BACnetAdapterIn().INIT() == pa_nEIID) {
-    DEVLOG_DEBUG("[FORTE_BACnetBinaryValue] executeEvent(): AdapterIn init event\n");
-    if(BACnetAdapterOut().getPeer() == 0) {
-      sendAdapterEvent(scm_nBACnetAdapterInAdpNum, FORTE_BACnetAdapter::scm_nEventINITOID);
-    } else {
-      // forward init
-      sendAdapterEvent(scm_nBACnetAdapterOutAdpNum, FORTE_BACnetAdapter::scm_nEventINITID);
-    }
- } else if (BACnetAdapterOut().INITO() == pa_nEIID) {
-   sendAdapterEvent(scm_nBACnetAdapterInAdpNum, FORTE_BACnetAdapter::scm_nEventINITOID);
- }
+
+  if(pa_nEIID == cg_nExternalEventID) { 
+    updatePresentValueOutput(mObject->getPresentValue(), true);
+  } else if (pa_nEIID == scm_nEventWRITE_PR_VALID) {
+    mObject->setPresentValue(PresentValueIn());
+    updatePresentValueOutput(mObject->getPresentValue(), true);
+  } else {
+    CBacnetObjectConfigFB::executeEvent(pa_nEIID);
+  }
+  
+
+
+}
+
+bool FORTE_BACnetBinaryValue::init(){
+  DEVLOG_DEBUG("[FORTE_BACnetBinaryValue] init(): initialising config fg\n");
+  mObject = new CBacnetBinaryValueObject(ObjectID(), PresentValueInit(), this);
+
+  CBacnetServerController *controller = FORTE_BACnetServer::getServerController();
+
+  if(controller == NULL)
+    return false;
+  
+  controller->addObjectTableEntry(mObject);
+
+  updatePresentValueOutput(mObject->getPresentValue(), false);
+
+  return true;
+}
+
+void FORTE_BACnetBinaryValue::updatePresentValueOutput(bool paValue, bool paFireIndEvent) {
+   PresentValueOut() = paValue;
+   if(paFireIndEvent)
+    sendOutputEvent(scm_nEventINDID);
 }
 
 

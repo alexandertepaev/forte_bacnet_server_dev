@@ -19,7 +19,14 @@
 #include <forte_wstring.h>
 #include "BACnetAdapter.h"
 
-class FORTE_BACnetAnalogValue: public CFunctionBlock{
+#include "bacnet_object_config_fb.h"
+
+class CBacnetAnalogValueObject;
+
+// class FORTE_BACnetAnalogValue: public CFunctionBlock{
+class FORTE_BACnetAnalogValue: public CBacnetObjectConfigFB{
+
+
   DECLARE_FIRMWARE_FB(FORTE_BACnetAnalogValue)
 
 private:
@@ -97,11 +104,20 @@ private:
 
   void executeEvent(int pa_nEIID);
 
-public:
-  FUNCTION_BLOCK_CTOR(FORTE_BACnetAnalogValue){
-  };
+  void updatePresentValueOutput(float paValue, bool paFireIndEvent);
 
-  virtual ~FORTE_BACnetAnalogValue(){};
+protected:
+  bool init();
+
+  CBacnetAnalogValueObject *mObject;
+
+public:
+  FORTE_BACnetAnalogValue(const CStringDictionary::TStringId pa_nInstanceNameId, CResource *pa_poSrcRes);
+  ~FORTE_BACnetAnalogValue();
+  // FUNCTION_BLOCK_CTOR(FORTE_BACnetAnalogValue){
+  // };
+
+  // virtual ~FORTE_BACnetAnalogValue(){};
 
 };
 

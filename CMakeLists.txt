@@ -6,6 +6,7 @@ forte_add_sourcefile_hcpp(BACnetServer)
 forte_add_sourcefile_hcpp(BACnetAnalogValue)
 forte_add_sourcefile_hcpp(BACnetBinaryValue)
 forte_add_sourcefile_hcpp(BACnetAdapter)
+forte_add_sourcefile_hcpp(bacnet_object_config_fb)
 forte_add_sourcefile_hcpp(bacnet_server_controller)
 
 forte_add_sourcefile_hcpp(objects/bacnet_object)

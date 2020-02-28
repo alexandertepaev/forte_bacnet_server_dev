@@ -5,10 +5,17 @@
 
 class CBacnetBinaryValueObject : public CBacnetObject {
   public:
-    CBacnetBinaryValueObject(uint32_t paObjectID);
+    CBacnetBinaryValueObject(uint32_t paObjectID, bool paPresentValue, forte::core::io::IOConfigFBBase *paConfigFB);
     ~CBacnetBinaryValueObject();
+    int encodeApplicationData(uint8_t *buffer,  BACNET_PROPERTY_ID property);
+    int writeProperty(BACNET_APPLICATION_DATA_VALUE *paData, BACNET_PROPERTY_ID property);
+    bool getPresentValue();
+    void setPresentValue(bool paValue);
   protected:
+
   private:
+    bool mPresentValue;
+
 };
 
 /*

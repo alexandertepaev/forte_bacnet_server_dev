@@ -14,6 +14,10 @@
 #include "BACnetAnalogValue_gen.cpp"
 #endif
 
+#include "objects/bacnet_analog_value_object.h"
+#include "bacnet_server_controller.h"
+#include "BACnetServer.h"
+
 DEFINE_FIRMWARE_FB(FORTE_BACnetAnalogValue, g_nStringIdBACnetAnalogValue)
 
 const CStringDictionary::TStringId FORTE_BACnetAnalogValue::scm_anDataInputNames[] = {g_nStringIdQI, g_nStringIdPresentValueIn, g_nStringIdInService, g_nStringIdObjectID, g_nStringIdObjectName, g_nStringIdPresentValueInit, g_nStringIdCOVReporting, g_nStringIdCOVIncrement};
@@ -43,19 +47,45 @@ const SFBInterfaceSpec FORTE_BACnetAnalogValue::scm_stFBInterfaceSpec = {
   2,scm_astAdapterInstances};
 
 
-void FORTE_BACnetAnalogValue::executeEvent(int pa_nEIID){
-  if(BACnetAdapterIn().INIT() == pa_nEIID && QI()) {
-    DEVLOG_DEBUG("[FORTE_BACnetAnalogValue] executeEvent(): AdapterIn init event\n");
-    if(BACnetAdapterOut().getPeer() == 0) {
-      sendAdapterEvent(scm_nBACnetAdapterInAdpNum, FORTE_BACnetAdapter::scm_nEventINITOID);
-    } else {
-      // forward init
-      sendAdapterEvent(scm_nBACnetAdapterOutAdpNum, FORTE_BACnetAdapter::scm_nEventINITID);
-    }
- } else if (BACnetAdapterOut().INITO() == pa_nEIID && QI()) {
-   sendAdapterEvent(scm_nBACnetAdapterInAdpNum, FORTE_BACnetAdapter::scm_nEventINITOID);
- }
+FORTE_BACnetAnalogValue::FORTE_BACnetAnalogValue(const CStringDictionary::TStringId pa_nInstanceNameId, CResource *pa_poSrcRes) : \
+CBacnetObjectConfigFB(pa_poSrcRes, &scm_stFBInterfaceSpec, pa_nInstanceNameId, m_anFBConnData, m_anFBVarsData) {
+}
+
+FORTE_BACnetAnalogValue::~FORTE_BACnetAnalogValue(){
 }
 
 
+void FORTE_BACnetAnalogValue::executeEvent(int pa_nEIID){
+  if(pa_nEIID == cg_nExternalEventID) { 
+    updatePresentValueOutput(mObject->getPresentValue(), true);
+  } else if (pa_nEIID == scm_nEventWRITE_PR_VALID) {
+    mObject->setPresentValue(PresentValueIn());
+    updatePresentValueOutput(mObject->getPresentValue(), true);
+  } else {
+    CBacnetObjectConfigFB::executeEvent(pa_nEIID);
+  }
+}
 
+bool FORTE_BACnetAnalogValue::init(){
+  DEVLOG_DEBUG("[FORTE_BACnetAnalogValue] init(): initialising config fg\n");
+
+  mObject = new CBacnetAnalogValueObject(ObjectID(), PresentValueInit(), this);
+
+  CBacnetServerController *controller = FORTE_BACnetServer::getServerController();
+
+  if(controller == NULL)
+    return false;
+  
+  controller->addObjectTableEntry(mObject);
+
+  updatePresentValueOutput(mObject->getPresentValue(), false);
+
+  return true;
+}
+
+
+void FORTE_BACnetAnalogValue::updatePresentValueOutput(float paValue, bool paFireIndEvent) {
+   PresentValueOut() = paValue;
+   if(paFireIndEvent)
+    sendOutputEvent(scm_nEventINDID);
+}

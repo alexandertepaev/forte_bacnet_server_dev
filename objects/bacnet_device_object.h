@@ -5,8 +5,10 @@
 
 class CBacnetDeviceObject : public CBacnetObject {
   public:
-    CBacnetDeviceObject(uint32_t paObjectID);
+    CBacnetDeviceObject(uint32_t paObjectID, forte::core::io::IOConfigFBBase *paConfigFB);
     ~CBacnetDeviceObject();
+    int encodeApplicationData(uint8_t *buffer,  BACNET_PROPERTY_ID property);
+    int writeProperty(BACNET_APPLICATION_DATA_VALUE *paData, BACNET_PROPERTY_ID property);
   protected:
   private:
 };

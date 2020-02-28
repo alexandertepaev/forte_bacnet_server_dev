@@ -17,7 +17,13 @@
 #include "objects/bacnet_device_object.h"
 #include "bacnet_server_controller.h"
 
+
+#include "../../forte-incubation_1.11.0/src/core/resource.h"
+#include "../../forte-incubation_1.11.0/src/core/device.h"
+
 const char * const FORTE_BACnetServer::scmInitFailed = "Initialization failed";
+
+CBacnetServerController *FORTE_BACnetServer::mController = NULL;
 
 DEFINE_FIRMWARE_FB(FORTE_BACnetServer, g_nStringIdBACnetServer)
 
@@ -47,10 +53,15 @@ const SFBInterfaceSpec FORTE_BACnetServer::scm_stFBInterfaceSpec = {
   1,scm_astAdapterInstances};
 
 
-FORTE_BACnetServer::FORTE_BACnetServer(const CStringDictionary::TStringId pa_nInstanceNameId, CResource *pa_poSrcRes) : \
-  CFunctionBlock( pa_poSrcRes, &scm_stFBInterfaceSpec, pa_nInstanceNameId, m_anFBConnData, m_anFBVarsData), mController(NULL) {
+// FORTE_BACnetServer::FORTE_BACnetServer(const CStringDictionary::TStringId pa_nInstanceNameId, CResource *pa_poSrcRes) : \
+//   CFunctionBlock( pa_poSrcRes, &scm_stFBInterfaceSpec, pa_nInstanceNameId, m_anFBConnData, m_anFBVarsData), mController(NULL) {
 
- }
+//  }
+
+FORTE_BACnetServer::FORTE_BACnetServer(const CStringDictionary::TStringId pa_nInstanceNameId, CResource *pa_poSrcRes) : \
+ forte::core::io::IOConfigFBBase(pa_poSrcRes, &scm_stFBInterfaceSpec, pa_nInstanceNameId, m_anFBConnData, m_anFBVarsData)
+{
+}
 
 FORTE_BACnetServer::~FORTE_BACnetServer(){};
 
@@ -76,19 +87,26 @@ void FORTE_BACnetServer::executeEvent(int pa_nEIID){
       DEVLOG_DEBUG("[FORTE_BACnetServer] executeEvent(): AdapterOut INITO event\n");
       QO() = true;
       sendOutputEvent(scm_nEventINITOID);
+      mController->initDone();
   }
 }
 
 bool FORTE_BACnetServer::init() {
   
-  mController = new CBacnetServerController();
+  mController = new CBacnetServerController(getResource().getDevice().getDeviceExecution());
   
   if(!mController->init(Port()))
     return false;
 
-  mController->addObjectTableEntry(new CBacnetDeviceObject(DeviceID()));
+  mDeviceObject = new CBacnetDeviceObject(DeviceID(), this);
+
+  mController->addObjectTableEntry(mDeviceObject);
   
   return true;
+}
+
+CBacnetServerController* FORTE_BACnetServer::getServerController() {
+  return mController;
 }
 
 

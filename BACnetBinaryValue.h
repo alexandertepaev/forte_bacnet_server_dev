@@ -18,7 +18,12 @@
 #include <forte_wstring.h>
 #include "BACnetAdapter.h"
 
-class FORTE_BACnetBinaryValue: public CFunctionBlock{
+#include "bacnet_object_config_fb.h"
+
+class CBacnetBinaryValueObject;
+
+//class FORTE_BACnetBinaryValue: public CFunctionBlock{
+class FORTE_BACnetBinaryValue: public CBacnetObjectConfigFB{
   DECLARE_FIRMWARE_FB(FORTE_BACnetBinaryValue)
 
 private:
@@ -92,11 +97,20 @@ private:
 
   void executeEvent(int pa_nEIID);
 
-public:
-  FUNCTION_BLOCK_CTOR(FORTE_BACnetBinaryValue){
-  };
+  void updatePresentValueOutput(bool paValue, bool paFireIndEvent);
 
-  virtual ~FORTE_BACnetBinaryValue(){};
+protected:
+  bool init();
+
+  CBacnetBinaryValueObject *mObject;
+
+public:
+  FORTE_BACnetBinaryValue(const CStringDictionary::TStringId pa_nInstanceNameId, CResource *pa_poSrcRes);
+  ~FORTE_BACnetBinaryValue();
+  // FUNCTION_BLOCK_CTOR(FORTE_BACnetBinaryValue){
+  // };
+
+  // virtual ~FORTE_BACnetBinaryValue(){};
 
 };
 

@@ -18,10 +18,12 @@
 #include <forte_wstring.h>
 #include "BACnetAdapter.h"
 
+#include"../../forte-incubation_1.11.0/src/core/io/configFB/io_base.h"
 
 class CBacnetServerController;
+class CBacnetDeviceObject;
 
-class FORTE_BACnetServer: public CFunctionBlock{
+class FORTE_BACnetServer: public forte::core::io::IOConfigFBBase {
   DECLARE_FIRMWARE_FB(FORTE_BACnetServer)
 
 private:
@@ -81,12 +83,18 @@ private:
 
   bool init();
 
-  CBacnetServerController *mController;
+  static CBacnetServerController *mController;
+
+  CBacnetDeviceObject *mDeviceObject;
 
 public:
   FORTE_BACnetServer(const CStringDictionary::TStringId pa_nInstanceNameId, CResource *pa_poSrcRes);
 
+  //FORTE_BACnetServer(CResource *paSrcRes, const SFBInterfaceSpec *paInterfaceSpec, const CStringDictionary::TStringId paInstanceNameId, TForteByte *paFBConnData, TForteByte *paFBVarsData);
+
   ~FORTE_BACnetServer();
+
+  static CBacnetServerController* getServerController();
 };
 
 #endif //close the ifdef sequence from the beginning of the file
