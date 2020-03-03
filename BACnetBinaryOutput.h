@@ -3,14 +3,14 @@
  ***
  *** This file was generated using the 4DIAC FORTE Export Filter V1.0.x!
  ***
- *** Name: BACnetBinaryValue
+ *** Name: BACnetBinaryOutput
  *** Description: Service Interface Function Block Type
  *** Version: 
- ***     1.0: 2020-02-02/root -  - 
+ ***     1.0: 2020-03-03/root -  - 
  *************************************************************************/
 
-#ifndef _BACNETBINARYVALUE_H_
-#define _BACNETBINARYVALUE_H_
+#ifndef _BACNETBINARYOUTPUT_H_
+#define _BACNETBINARYOUTPUT_H_
 
 #include <funcbloc.h>
 #include <forte_bool.h>
@@ -18,13 +18,8 @@
 #include <forte_wstring.h>
 #include "BACnetAdapter.h"
 
-#include "bacnet_object_config_fb.h"
-
-class CBacnetBinaryValueObject;
-
-//class FORTE_BACnetBinaryValue: public CFunctionBlock{
-class FORTE_BACnetBinaryValue: public CBacnetObjectConfigFB{
-  DECLARE_FIRMWARE_FB(FORTE_BACnetBinaryValue)
+class FORTE_BACnetBinaryOutput: public CFunctionBlock{
+  DECLARE_FIRMWARE_FB(FORTE_BACnetBinaryOutput)
 
 private:
   static const CStringDictionary::TStringId scm_anDataInputNames[];
@@ -53,8 +48,12 @@ private:
     return *static_cast<CIEC_BOOL*>(getDI(5));
   };
 
-  CIEC_BOOL &COVReporting() {
+  CIEC_BOOL &ReversePolarity() {
     return *static_cast<CIEC_BOOL*>(getDI(6));
+  };
+
+  CIEC_BOOL &COVReporting() {
+    return *static_cast<CIEC_BOOL*>(getDI(7));
   };
 
   static const CStringDictionary::TStringId scm_anDataOutputNames[];
@@ -93,22 +92,15 @@ private:
   static const int scm_nBACnetAdapterInAdpNum = 1;
   static const SFBInterfaceSpec scm_stFBInterfaceSpec;
 
-   FORTE_FB_DATA_ARRAY(1, 7, 3, 2);
+   FORTE_FB_DATA_ARRAY(1, 8, 3, 2);
 
   void executeEvent(int pa_nEIID);
 
-  void updatePresentValueOutput(bool paValue, bool paFireIndEvent);
-
-protected:
-  bool init();
-
-  CBacnetBinaryValueObject *mObject;
-
 public:
-  FORTE_BACnetBinaryValue(const CStringDictionary::TStringId pa_nInstanceNameId, CResource *pa_poSrcRes);
-  ~FORTE_BACnetBinaryValue();
+  FUNCTION_BLOCK_CTOR(FORTE_BACnetBinaryOutput){
+  };
 
-  // bool isInService();
+  virtual ~FORTE_BACnetBinaryOutput(){};
 
 };
 

@@ -27,6 +27,6 @@
 // #include "bvlc.h"
 #include "whois.h"
 #include "iam.h"
-// #include "cov.h"
+#include "cov.h"
 
 #endif

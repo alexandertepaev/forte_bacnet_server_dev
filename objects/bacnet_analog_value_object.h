@@ -2,19 +2,22 @@
 #define _BACNET_AV_OBJCET_H_
 
 #include "bacnet_object.h"
+#include "bacnet_cov_reporting_object.h"
 
-class CBacnetAnalogValueObject : public CBacnetObject {
+class CBacnetAnalogValueObject : public CBacnetCOVReportingObject {
   public:
-    CBacnetAnalogValueObject(uint32_t paObjectID, float paPresentValue, forte::core::io::IOConfigFBBase *paConfigFB);
+    CBacnetAnalogValueObject(uint32_t paObjectID, float paPresentValue, bool paCOVReportingEnabled, float paCOVIncrement, forte::core::io::IOConfigFBBase *paConfigFB);
     ~CBacnetAnalogValueObject();
-    int encodeApplicationData(uint8_t *buffer,  BACNET_PROPERTY_ID property);
-    int writeProperty(BACNET_APPLICATION_DATA_VALUE *paData, BACNET_PROPERTY_ID property);
+    int readProperty(uint8_t *buffer,  BACNET_PROPERTY_ID property);
+    bool writeProperty(BACNET_APPLICATION_DATA_VALUE *paData, BACNET_PROPERTY_ID property);
     float getPresentValue();
     void setPresentValue(float paValue);
+    void encodeValueList(BACNET_PROPERTY_VALUE* value_list);
   protected:
 
   private:
     float mPresentValue;
+    float mCOVIncrement;
 };
 
 /*

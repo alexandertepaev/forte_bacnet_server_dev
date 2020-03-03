@@ -72,7 +72,7 @@ void FORTE_BACnetBinaryValue::executeEvent(int pa_nEIID){
 
 bool FORTE_BACnetBinaryValue::init(){
   DEVLOG_DEBUG("[FORTE_BACnetBinaryValue] init(): initialising config fg\n");
-  mObject = new CBacnetBinaryValueObject(ObjectID(), PresentValueInit(), this);
+  mObject = new CBacnetBinaryValueObject(ObjectID(), PresentValueInit(), COVReporting(), this);
 
   CBacnetServerController *controller = FORTE_BACnetServer::getServerController();
 
@@ -80,6 +80,9 @@ bool FORTE_BACnetBinaryValue::init(){
     return false;
   
   controller->addObjectTableEntry(mObject);
+
+  if(COVReporting() == true)
+    controller->addCOVReportersEntry(mObject);
 
   updatePresentValueOutput(mObject->getPresentValue(), false);
 
@@ -93,4 +96,6 @@ void FORTE_BACnetBinaryValue::updatePresentValueOutput(bool paValue, bool paFire
 }
 
 
-
+// bool FORTE_BACnetBinaryValue::isInService() {
+//   return InService();
+// }

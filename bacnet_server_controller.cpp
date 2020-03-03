@@ -2,9 +2,10 @@
 #include <extevhan.h>
 #include <devexec.h>
 #include "objects/bacnet_object.h"
+#include "objects/bacnet_cov_reporting_object.h"
 #include "bacnet_server_controller.h"
 
-CBacnetServerController::CBacnetServerController(CDeviceExecution& paDeviceExecution): CExternalEventHandler(paDeviceExecution), mObjectTable(NULL) {
+CBacnetServerController::CBacnetServerController(CDeviceExecution& paDeviceExecution): CExternalEventHandler(paDeviceExecution), mObjectTable(NULL), mCOVReporters(NULL) {
   DEVLOG_DEBUG("[CBacnetServerController] CBacnetServerController(): created new server controller instance\n");
   memset(&m_stServerConfig, 0, sizeof(ServerConfig));
 }
@@ -19,6 +20,7 @@ bool CBacnetServerController::init(uint16_t paPort) {
  
 
   mObjectTable = new TObjectTable();
+  mCOVReporters = new TCOVReporters();
   
   m_stServerConfig.Port = htons(paPort);
   DEVLOG_DEBUG("[CBacnetServerController] init(): Initializing controller on Port=%04X\n", htons(m_stServerConfig.Port));
@@ -114,6 +116,18 @@ bool CBacnetServerController::addObjectTableEntry(CBacnetObject *paObject) {
   return true;
 }
 
+void CBacnetServerController::addCOVReportersEntry(CBacnetCOVReportingObject *paObject) {
+//void CBacnetServerController::addCOVReportersEntry(CBacnetObject *paObject) {
+  
+  TSubscriptions *subs = new TSubscriptions();
+  SCOVReporter *newEntry = new SCOVReporter(paObject, subs);
+
+  mCOVReporters->pushBack(newEntry);
+
+  DEVLOG_DEBUG("[CBacnetServerController] addCOVReportersEntry(): added COVReporters entry\n");
+  
+}
+
 void CBacnetServerController::initDone() {
   start();
 }
@@ -125,6 +139,25 @@ void CBacnetServerController::run() {
     if(receivePacket(100, &src) > 0) {
       handleReceivedPacket(src);
     }
+
+    processPendingCOVReports();
+
+    /*
+    processPendingCOVReports();
+    ---------------------------------------
+
+    processPendingCOVReports:
+      for each e in mCOVReporters:
+        if e->obj->COVCondition():
+          sendCOVReport(e)
+          e->obj->clearCOVCondition();
+
+    ---------------------------------------
+
+    sendCOVReport(e):
+      for each subscriber in e->subs:
+        // build packet and send
+    */
 
   }
 }
@@ -157,7 +190,7 @@ ssize_t CBacnetServerController::receivePacket(uint16_t timeout, sockaddr_in *sr
   return -1;
 }
 
-void CBacnetServerController::handleReceivedPacket(const sockaddr_in &src){
+void CBacnetServerController::handleReceivedPacket(sockaddr_in &src){
   uint8_t service_choice, apdu_type, invoke_id = 0;
   uint32_t apdu_offset, apdu_len, service_req_offset = 0;
 
@@ -173,6 +206,10 @@ void CBacnetServerController::handleReceivedPacket(const sockaddr_in &src){
       break;
     case SERVICE_UNCONFIRMED_WHO_IS:
       handleWhoIsRequest(service_req_offset, apdu_len-2, src);
+      break;
+    case SERVICE_CONFIRMED_SUBSCRIBE_COV:
+      handleSubscribeCOVRequest(service_req_offset, apdu_len-4, src, invoke_id);
+      break;
     default:
       break;
     }
@@ -340,7 +377,7 @@ void CBacnetServerController::handleReadPropertyRequest(const uint32_t &service_
     pdu_len += npdu_encode_pdu(&mSendBuffer[pdu_len], &dest, &src, &npdu_data);
     pdu_len += rp_ack_encode_apdu_init(&mSendBuffer[pdu_len], invoke_id, &rpdata);
     //obj->encodeApplicationData(&mSendBuffer[...], rpdata.object_property);
-    int app_data_len = obj->encodeApplicationData(&mSendBuffer[pdu_len], rpdata.object_property);
+    int app_data_len = obj->readProperty(&mSendBuffer[pdu_len], rpdata.object_property);
 
     if (app_data_len>0) {
       pdu_len += app_data_len;
@@ -348,13 +385,11 @@ void CBacnetServerController::handleReadPropertyRequest(const uint32_t &service_
       mSendBuffer[0] = BVLL_TYPE_BACNET_IP;
       mSendBuffer[1] = BVLC_ORIGINAL_UNICAST_NPDU; 
       encode_unsigned16(&mSendBuffer[2], pdu_len);
-      // for(int i = 0; i<pdu_len; i++) {
-      //   printf("%02X ", mSendBuffer[i]);
-      // }
-      // printf("\n");
       if(sendPacket(pdu_len, paSrc) > 0){
-        DEVLOG_DEBUG("Sent!\n");
+        DEVLOG_DEBUG("[CBacnetServerController] handleReadPropertyRequest(): Sent ReadProperty Ack!\n");
       }
+    } else {
+      DEVLOG_DEBUG("[CBacnetServerController] handleReadPropertyRequest(): obj->readProperty() failed\n");
     }
   }
 
@@ -379,28 +414,32 @@ void CBacnetServerController::handleWritePropertyRequest(const uint32_t &service
 
     BACNET_APPLICATION_DATA_VALUE value;
     if(bacapp_decode_application_data(wpdata.application_data, wpdata.application_data_len, &value) > 0){
-      obj->writeProperty(&value, wpdata.object_property);
-      startNewEventChain(obj->getConfigFB());
-    } 
       
-  
-    // TODO send ack only if writeProperty(...) succeded
-    BACNET_NPDU_DATA npdu_data;
-    npdu_encode_npdu_data(&npdu_data, false, MESSAGE_PRIORITY_NORMAL);
-    BACNET_ADDRESS dest = ipToBacnetAddress(paSrc.sin_addr, paSrc.sin_port, false);
-    BACNET_ADDRESS src = ipToBacnetAddress(m_stServerConfig.LocalAddr, m_stServerConfig.Port, false);
-    int pdu_len = 4;
-    pdu_len += npdu_encode_pdu(&mSendBuffer[pdu_len], &dest, &src, &npdu_data);
-    pdu_len += encode_simple_ack(&mSendBuffer[pdu_len], invoke_id, SERVICE_CONFIRMED_WRITE_PROPERTY);
+      if(obj->writeProperty(&value, wpdata.object_property)) {
+        // update ConfigFB;
+        startNewEventChain(obj->getConfigFB());
+      
+        // send acknowledge
+        BACNET_NPDU_DATA npdu_data;
+        npdu_encode_npdu_data(&npdu_data, false, MESSAGE_PRIORITY_NORMAL);
+        BACNET_ADDRESS dest = ipToBacnetAddress(paSrc.sin_addr, paSrc.sin_port, false);
+        BACNET_ADDRESS src = ipToBacnetAddress(m_stServerConfig.LocalAddr, m_stServerConfig.Port, false);
+        int pdu_len = 4;
+        pdu_len += npdu_encode_pdu(&mSendBuffer[pdu_len], &dest, &src, &npdu_data);
+        pdu_len += encode_simple_ack(&mSendBuffer[pdu_len], invoke_id, SERVICE_CONFIRMED_WRITE_PROPERTY);
 
-    mSendBuffer[0] = BVLL_TYPE_BACNET_IP;
-    mSendBuffer[1] = BVLC_ORIGINAL_UNICAST_NPDU; 
-    encode_unsigned16(&mSendBuffer[2], pdu_len);
+        mSendBuffer[0] = BVLL_TYPE_BACNET_IP;
+        mSendBuffer[1] = BVLC_ORIGINAL_UNICAST_NPDU; 
+        encode_unsigned16(&mSendBuffer[2], pdu_len);
 
-    if(sendPacket(pdu_len, paSrc) > 0){
-      DEVLOG_DEBUG("Sent!\n");
-    }
-
+        if(sendPacket(pdu_len, paSrc) > 0){
+          DEVLOG_DEBUG("[CBacnetServerController] handleWritePropertyRequest(): Sent WriteProperty Ack!\n");
+        }
+      } else {
+         DEVLOG_DEBUG("[CBacnetServerController] handleWritePropertyRequest(): obj->writeProeprty() failed\n");
+      }
+      
+    } 
   }
 }
 
@@ -441,6 +480,109 @@ void CBacnetServerController::handleWhoIsRequest(const uint32_t &service_req_off
   }
 }
 
+void CBacnetServerController::handleSubscribeCOVRequest(const uint32_t &service_req_offset, uint16_t service_req_len, sockaddr_in &paSrc, const uint8_t &invoke_id) {
+  BACNET_SUBSCRIBE_COV_DATA cov_data;
+  int len = cov_subscribe_decode_service_request(&mReceiveBuffer[service_req_offset], service_req_offset, &cov_data);
+
+  // not cancellation request and not subcov confirmed request
+  if(len > 0 && !cov_data.cancellationRequest && !cov_data.issueConfirmedNotifications) {
+    DEVLOG_DEBUG("[CBacnetServerController] handleSubscribeCOVRequest(): Subscribing to ObjectType=%d, ObjectInstance=%d\n", cov_data.monitoredObjectIdentifier.type, cov_data.monitoredObjectIdentifier.instance);
+
+    // TODO check for duplicates
+    SCOVReporter *cov_reporters_entry = getCOVReportersEntry((BACNET_OBJECT_TYPE) cov_data.monitoredObjectIdentifier.type, cov_data.monitoredObjectIdentifier.instance);
+    
+    if(cov_reporters_entry != NULL) {
+      //cov_reporters_entry->covData = &cov_data; // TODO -> covData per each subscription -> rethink subs list
+
+      /*
+        updateCOVSubscriptionDataList(TSubscriptions *list, BACNET_SUBSCRIBE_COV_DATA *cov_data, in_addr *paAddr, uint16_t *paPort); 
+      */
+
+      if(updateCOVSubscriptionDataList(cov_reporters_entry->subs, &cov_data, &paSrc.sin_addr, &paSrc.sin_port)) {
+        DEVLOG_DEBUG("[CBacnetServerController] handleSubscribeCOVRequest(): Subscribe OK: pushed addr %s:%04X\n", inet_ntoa(paSrc.sin_addr), htons(paSrc.sin_port));
+
+        //cov_reporters_entry->obj->setCOVCondition(); //TODO remove
+        
+        BACNET_NPDU_DATA npdu_data;
+        npdu_encode_npdu_data(&npdu_data, false, MESSAGE_PRIORITY_NORMAL);
+        BACNET_ADDRESS dest = ipToBacnetAddress(paSrc.sin_addr, paSrc.sin_port, false);
+        BACNET_ADDRESS src = ipToBacnetAddress(m_stServerConfig.LocalAddr, m_stServerConfig.Port, false);
+        int pdu_len = 4;
+        pdu_len += npdu_encode_pdu(&mSendBuffer[pdu_len], &dest, &src, &npdu_data);
+        pdu_len += encode_simple_ack(&mSendBuffer[pdu_len], invoke_id, SERVICE_CONFIRMED_SUBSCRIBE_COV);
+        mSendBuffer[0] = BVLL_TYPE_BACNET_IP;
+        mSendBuffer[1] = BVLC_ORIGINAL_UNICAST_NPDU; 
+        encode_unsigned16(&mSendBuffer[2], pdu_len);
+        if(sendPacket(pdu_len, paSrc) > 0){
+          DEVLOG_DEBUG("[CBacnetServerController] handleSubscribeCOVRequest(): Sent SubscribeCOV Ack!\n");
+        }
+      } else {
+        DEVLOG_DEBUG("[CBacnetServerController] handleSubscribeCOVRequest(): Subscribe FAILED: duplicated subscription\n");
+      }
+    } else {
+      DEVLOG_DEBUG("[CBacnetServerController] handleSubscribeCOVRequest(): Subscribe FAILED: target object not found\n");
+    }
+
+  }
+
+}
+
+void CBacnetServerController::processPendingCOVReports() {
+  TCOVReporters::Iterator itEnd = mCOVReporters->end();
+  for(TCOVReporters::Iterator it = mCOVReporters->begin(); it != itEnd; ++it){
+    if((*it)->obj->COVCondition()) {
+      sendCOVReports((*it));
+      (*it)->obj->clearCOVCondition();
+    }
+  }
+}
+
+void CBacnetServerController::sendCOVReports(SCOVReporter *paCOVReporter) {
+
+  BACNET_PROPERTY_VALUE value_list[2]; // FIXME: for now only present_value+statusflags
+  value_list[0].next = &value_list[1];
+  value_list[1].next = NULL;
+
+  paCOVReporter->obj->encodeValueList(value_list);
+
+  TSubscriptions::Iterator itEnd = paCOVReporter->subs->end();
+  for(TSubscriptions::Iterator it = paCOVReporter->subs->begin(); it != itEnd; ++it){
+
+    BACNET_NPDU_DATA npdu_data;
+    npdu_encode_npdu_data(&npdu_data, false, MESSAGE_PRIORITY_NORMAL);
+    BACNET_ADDRESS dest = ipToBacnetAddress((*it)->addr, (*it)->port, false);
+    BACNET_ADDRESS src = ipToBacnetAddress(m_stServerConfig.LocalAddr, m_stServerConfig.Port, false);
+    int pdu_len = 4;
+    pdu_len += npdu_encode_pdu(&mSendBuffer[pdu_len], &dest, &src, &npdu_data);
+    
+    BACNET_COV_DATA cov_data;
+    cov_data.subscriberProcessIdentifier = (*it)->covData.subscriberProcessIdentifier;
+    cov_data.initiatingDeviceIdentifier = (*mObjectTable->begin())->mObjectID;
+    cov_data.monitoredObjectIdentifier.type = (*it)->covData.monitoredObjectIdentifier.type;
+    cov_data.monitoredObjectIdentifier.instance = (*it)->covData.monitoredObjectIdentifier.instance;
+    cov_data.timeRemaining = (*it)->covData.lifetime;
+    cov_data.listOfValues = value_list;
+
+    pdu_len += ucov_notify_encode_apdu(&mSendBuffer[pdu_len], &cov_data);
+
+    mSendBuffer[0] = BVLL_TYPE_BACNET_IP;
+    mSendBuffer[1] = BVLC_ORIGINAL_UNICAST_NPDU; 
+    encode_unsigned16(&mSendBuffer[2], pdu_len);
+
+
+    struct sockaddr_in destNetworkAddr;
+    destNetworkAddr.sin_family = AF_INET;
+    destNetworkAddr.sin_addr.s_addr = (*it)->addr.s_addr;
+    destNetworkAddr.sin_port = (*it)->port;
+    memset(destNetworkAddr.sin_zero, 0, 8);
+
+    if(sendPacket(pdu_len, destNetworkAddr) > 0){
+      DEVLOG_DEBUG("[CBacnetServerController] sendCOVReports(): Sent COV Report!\n");
+    }
+
+  }
+}
+
 CBacnetObject* CBacnetServerController::getBacnetObject(BACNET_OBJECT_TYPE paObjectType, uint32_t paObjectInstance) {
   TObjectTable::Iterator itEnd = mObjectTable->end();
   for(TObjectTable::Iterator it = mObjectTable->begin(); it != itEnd; ++it){ 
@@ -450,6 +592,29 @@ CBacnetObject* CBacnetServerController::getBacnetObject(BACNET_OBJECT_TYPE paObj
       
   }
   return NULL;
+}
+
+CBacnetServerController::SCOVReporter* CBacnetServerController::getCOVReportersEntry(BACNET_OBJECT_TYPE paObjectType, uint32_t paObjectInstance) {
+
+  TCOVReporters::Iterator itEnd = mCOVReporters->end();
+  for(TCOVReporters::Iterator it = mCOVReporters->begin(); it != itEnd; ++it){
+    if((*it)->obj->mObjectType == paObjectType && (*it)->obj->mObjectID == paObjectInstance) {
+      return (*it);
+    }
+  }
+  return NULL;
+}
+
+bool CBacnetServerController::updateCOVSubscriptionDataList(TSubscriptions *list, BACNET_SUBSCRIBE_COV_DATA *cov_data, in_addr *paAddr, uint16_t *paPort) {
+  TSubscriptions::Iterator itEnd = list->end();
+  for(TSubscriptions::Iterator it = list->begin(); it != itEnd; ++it){ 
+    if(cov_data->subscriberProcessIdentifier == (*it)->covData.subscriberProcessIdentifier && paAddr->s_addr == (*it)->addr.s_addr && (*paPort) == (*it)->port ) {
+      return false;
+    }
+  }
+
+  list->pushBack(new SSubscriptionData((*paAddr), (*paPort), (*cov_data)));
+  return true;
 }
 
 BACNET_ADDRESS CBacnetServerController::ipToBacnetAddress(struct in_addr paDeviceAddr, uint16_t paPort, bool paBroadcastAddr){

@@ -1,20 +1,26 @@
 #ifndef _BACNET_BV_OBJCET_H_
 #define _BACNET_BV_OBJCET_H_
 
-#include "bacnet_object.h"
+#include "bacnet_cov_reporting_object.h"
 
-class CBacnetBinaryValueObject : public CBacnetObject {
+// class CBacnetBinaryValueObject : public CBacnetObject, public CBacnetCOVReportingObject {
+
+class CBacnetBinaryValueObject : public CBacnetCOVReportingObject { 
   public:
-    CBacnetBinaryValueObject(uint32_t paObjectID, bool paPresentValue, forte::core::io::IOConfigFBBase *paConfigFB);
+    CBacnetBinaryValueObject(uint32_t paObjectID, bool paPresentValue, bool paCOVReportingEnabled, forte::core::io::IOConfigFBBase *paConfigFB);
     ~CBacnetBinaryValueObject();
-    int encodeApplicationData(uint8_t *buffer,  BACNET_PROPERTY_ID property);
-    int writeProperty(BACNET_APPLICATION_DATA_VALUE *paData, BACNET_PROPERTY_ID property);
+    int readProperty(uint8_t *buffer,  BACNET_PROPERTY_ID property);
+    bool writeProperty(BACNET_APPLICATION_DATA_VALUE *paData, BACNET_PROPERTY_ID property);
     bool getPresentValue();
     void setPresentValue(bool paValue);
+    void encodeValueList(BACNET_PROPERTY_VALUE* value_list);
   protected:
 
   private:
     bool mPresentValue;
+
+    // in case OutOfService is required
+    // bool mOutOfService;
 
 };
 

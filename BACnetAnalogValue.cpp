@@ -55,12 +55,26 @@ FORTE_BACnetAnalogValue::~FORTE_BACnetAnalogValue(){
 }
 
 
+void foo(CIEC_ANY &val) {
+  float foo_val = 55.123;
+  CIEC_ANY *foo_val_ciec = new CIEC_ANY();
+  foo_val_ciec->setValue(static_cast<CIEC_REAL>(foo_val));
+  static_cast<CIEC_REAL&>(val) = *static_cast<CIEC_REAL *>(foo_val_ciec);
+}
+
 void FORTE_BACnetAnalogValue::executeEvent(int pa_nEIID){
   if(pa_nEIID == cg_nExternalEventID) { 
     updatePresentValueOutput(mObject->getPresentValue(), true);
   } else if (pa_nEIID == scm_nEventWRITE_PR_VALID) {
+
+
+    
+    // foo(PresentValueOut());
+
     mObject->setPresentValue(PresentValueIn());
     updatePresentValueOutput(mObject->getPresentValue(), true);
+
+  
   } else {
     CBacnetObjectConfigFB::executeEvent(pa_nEIID);
   }
@@ -69,7 +83,7 @@ void FORTE_BACnetAnalogValue::executeEvent(int pa_nEIID){
 bool FORTE_BACnetAnalogValue::init(){
   DEVLOG_DEBUG("[FORTE_BACnetAnalogValue] init(): initialising config fg\n");
 
-  mObject = new CBacnetAnalogValueObject(ObjectID(), PresentValueInit(), this);
+  mObject = new CBacnetAnalogValueObject(ObjectID(), PresentValueInit(), COVReporting(), COVIncrement(), this);
 
   CBacnetServerController *controller = FORTE_BACnetServer::getServerController();
 
@@ -77,6 +91,9 @@ bool FORTE_BACnetAnalogValue::init(){
     return false;
   
   controller->addObjectTableEntry(mObject);
+
+  if(COVReporting() == true)
+    controller->addCOVReportersEntry(mObject);
 
   updatePresentValueOutput(mObject->getPresentValue(), false);
 

@@ -1,6 +1,6 @@
 #include "bacnet_analog_value_object.h"
 
-CBacnetAnalogValueObject::CBacnetAnalogValueObject(uint32_t paObjectID, float paPresentValue, forte::core::io::IOConfigFBBase *paConfigFB) : CBacnetObject(OBJECT_ANALOG_VALUE, paObjectID, paConfigFB), mPresentValue(paPresentValue) {
+CBacnetAnalogValueObject::CBacnetAnalogValueObject(uint32_t paObjectID, float paPresentValue, bool paCOVReportingEnabled, float paCOVIncrement, forte::core::io::IOConfigFBBase *paConfigFB) : CBacnetCOVReportingObject(OBJECT_ANALOG_VALUE, paObjectID, paCOVReportingEnabled, paConfigFB), mPresentValue(paPresentValue), mCOVIncrement(paCOVIncrement) {
   mPresentValue = paPresentValue;
   DEVLOG_DEBUG("[CBacnetAnalogValueObject] CBacnetAnalogValueObject(): Initialized Analog Value Object: ObjID=%d, PresentValue=%f\n", mObjectID, mPresentValue);
 }
@@ -9,36 +9,66 @@ CBacnetAnalogValueObject::~CBacnetAnalogValueObject() {
     
 }
 
-int CBacnetAnalogValueObject::encodeApplicationData(uint8_t *buffer,  BACNET_PROPERTY_ID property) {
+int CBacnetAnalogValueObject::readProperty(uint8_t *buffer,  BACNET_PROPERTY_ID property) {
   int len = 0;
   switch (property)
   {   
-  case PROP_PRESENT_VALUE:
+    case PROP_PRESENT_VALUE:
       len = encode_application_real(buffer, mPresentValue);
       break;
-  
-  default:
+
+    default:
       break;
   }
   return len;
 }
 
- int CBacnetAnalogValueObject::writeProperty(BACNET_APPLICATION_DATA_VALUE *paData, BACNET_PROPERTY_ID property) {
-   switch (property)
-    {
+bool CBacnetAnalogValueObject::writeProperty(BACNET_APPLICATION_DATA_VALUE *paData, BACNET_PROPERTY_ID property) {
+  switch (property)
+  {
     case PROP_PRESENT_VALUE:
-        mPresentValue = paData->type.Real;
-        break;
-    
+      setPresentValue(paData->type.Real);
+      return true;
+      break;
     default:
-        break;
-    }
- }
+      break;
+  }
+  return false;
+}
 
- float CBacnetAnalogValueObject::getPresentValue() {
-   return mPresentValue;
- }
+float CBacnetAnalogValueObject::getPresentValue() {
+  
+  return mPresentValue;
+}
 
- void CBacnetAnalogValueObject::setPresentValue(float paValue) {
-   mPresentValue = paValue;
- }
+void CBacnetAnalogValueObject::setPresentValue(float paValue) {
+  if(COVReportingEnabled() && mPresentValue != paValue && std::abs(mPresentValue-paValue) >= mCOVIncrement)
+    setCOVCondition();
+  mPresentValue = paValue;
+}
+
+void CBacnetAnalogValueObject::encodeValueList(BACNET_PROPERTY_VALUE* value_list) {
+  //present value
+  value_list->propertyIdentifier = PROP_PRESENT_VALUE;
+  value_list->propertyArrayIndex = BACNET_ARRAY_ALL;
+  value_list->value.context_specific = false;
+  value_list->value.tag = BACNET_APPLICATION_TAG_REAL;
+  value_list->value.next = NULL;
+  value_list->value.type.Real = mPresentValue;
+  value_list->priority = BACNET_NO_PRIORITY;
+  value_list = value_list->next;
+
+  //status flags (TODO: hardcoded)
+  value_list->propertyIdentifier = PROP_PRESENT_VALUE;
+  value_list->propertyArrayIndex = BACNET_ARRAY_ALL;
+  value_list->value.context_specific = false;
+  value_list->value.tag = BACNET_APPLICATION_TAG_BIT_STRING;
+  value_list->value.next = NULL;
+  bitstring_init(&value_list->value.type.Bit_String);
+  bitstring_set_bit(&value_list->value.type.Bit_String, STATUS_FLAG_IN_ALARM, false);
+  bitstring_set_bit(&value_list->value.type.Bit_String, STATUS_FLAG_FAULT, false);
+  bitstring_set_bit(&value_list->value.type.Bit_String, STATUS_FLAG_OVERRIDDEN, false);
+  bitstring_set_bit(&value_list->value.type.Bit_String, STATUS_FLAG_OUT_OF_SERVICE, false);
+  value_list->priority = BACNET_NO_PRIORITY;
+  value_list = value_list->next;
+}

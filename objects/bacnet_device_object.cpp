@@ -8,10 +8,10 @@ CBacnetDeviceObject::~CBacnetDeviceObject() {
     
 }
 
-int CBacnetDeviceObject::encodeApplicationData(uint8_t *buffer,  BACNET_PROPERTY_ID property) {
+int CBacnetDeviceObject::readProperty(uint8_t *buffer,  BACNET_PROPERTY_ID property) {
 
 }
 
- int CBacnetDeviceObject::writeProperty(BACNET_APPLICATION_DATA_VALUE *paData, BACNET_PROPERTY_ID property) {
+bool CBacnetDeviceObject::writeProperty(BACNET_APPLICATION_DATA_VALUE *paData, BACNET_PROPERTY_ID property) {
 
- }
+}
