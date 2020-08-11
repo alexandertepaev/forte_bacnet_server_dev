@@ -18,8 +18,10 @@
 #include "bacnet_server_controller.h"
 
 
-#include "../../forte-incubation_1.11.0/src/core/resource.h"
-#include "../../forte-incubation_1.11.0/src/core/device.h"
+// #include "../../forte-incubation_1.11.0/src/core/resource.h"
+// #include "../../forte-incubation_1.11.0/src/core/device.h"
+#include <core/resource.h>
+#include <core/device.h>
 
 const char * const FORTE_BACnetServer::scmInitFailed = "Initialization failed";
 

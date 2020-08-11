@@ -1,15 +1,15 @@
-#include "bacnet_binary_value_object.h"
+#include "bacnet_binary_output_object.h"
 
-// CBacnetBinaryValueObject::CBacnetBinaryValueObject(uint32_t paObjectID, bool paPresentValue, forte::core::io::IOConfigFBBase *paConfigFB) : CBacnetObject(OBJECT_BINARY_VALUE, paObjectID, paConfigFB), mPresentValue(paPresentValue), CBacnetCOVReportingObject() {
-CBacnetBinaryValueObject::CBacnetBinaryValueObject(uint32_t paObjectID, bool paPresentValue, bool paCOVReportingEnabled, forte::core::io::IOConfigFBBase *paConfigFB) : CBacnetCOVReportingObject(OBJECT_BINARY_VALUE, paObjectID, paCOVReportingEnabled, paConfigFB), mPresentValue(paPresentValue) {
-  DEVLOG_DEBUG("[CBacnetBinaryValueObject] CBacnetBinaryValueObject(): Initialized Binary Value Object: ObjID=%d, PresentValue=%d\n", mObjectID, mPresentValue);
+CBacnetBinaryOutputObject::CBacnetBinaryOutputObject(uint32_t paObjectID, bool paPresentValue, bool paCOVReportingEnabled, forte::core::io::IOConfigFBBase *paConfigFB) : CBacnetCOVReportingObject(OBJECT_BINARY_OUTPUT, paObjectID, paCOVReportingEnabled, paConfigFB), mPresentValue(paPresentValue)
+{
+  DEVLOG_DEBUG("[CBacnetBinaryOutputObject] CBacnetBinaryOutputObject(): Initialized Binary Output Object: ObjID=%d, PresentValue=%d\n", mObjectID, mPresentValue);
 }
 
-CBacnetBinaryValueObject::~CBacnetBinaryValueObject() {
-    
+CBacnetBinaryOutputObject::~CBacnetBinaryOutputObject()
+{
 }
 
-int CBacnetBinaryValueObject::readProperty(uint8_t *buffer,  BACNET_PROPERTY_ID property) {
+int CBacnetBinaryOutputObject::readProperty(uint8_t *buffer,  BACNET_PROPERTY_ID property) {
   int len = 0;
   switch (property)
   {   
@@ -22,12 +22,10 @@ int CBacnetBinaryValueObject::readProperty(uint8_t *buffer,  BACNET_PROPERTY_ID 
   return len;
 }
 
-bool CBacnetBinaryValueObject::writeProperty(BACNET_APPLICATION_DATA_VALUE *paData, BACNET_PROPERTY_ID property) {
+bool CBacnetBinaryOutputObject::writeProperty(BACNET_APPLICATION_DATA_VALUE *paData, BACNET_PROPERTY_ID property) {
   switch (property)
   {
     case PROP_PRESENT_VALUE:
-
-
       // mOutOfService = !(static_cast<FORTE_BACnetBinaryValue *>(mConfigFB)->isInService());
       // if(!mOutOfService){
       //   setPresentValue(paData->type.Enumerated);
@@ -36,7 +34,6 @@ bool CBacnetBinaryValueObject::writeProperty(BACNET_APPLICATION_DATA_VALUE *paDa
       //   DEVLOG_DEBUG("OUT OF SERVICE!\n");
       //   return false;
       // }
-
       setPresentValue(paData->type.Enumerated);
       return true;
       break;
@@ -46,17 +43,17 @@ bool CBacnetBinaryValueObject::writeProperty(BACNET_APPLICATION_DATA_VALUE *paDa
   return false;
 }
 
-bool CBacnetBinaryValueObject::getPresentValue() {
+bool CBacnetBinaryOutputObject::getPresentValue() {
   return mPresentValue;
 }
 
-void CBacnetBinaryValueObject::setPresentValue(bool paValue) {
+void CBacnetBinaryOutputObject::setPresentValue(bool paValue) {
   if(COVReportingEnabled() && mPresentValue != paValue)
     setCOVCondition();
   mPresentValue = paValue;
 }
 
-void CBacnetBinaryValueObject::encodeValueList(BACNET_PROPERTY_VALUE* value_list) {
+void CBacnetBinaryOutputObject::encodeValueList(BACNET_PROPERTY_VALUE* value_list) {
   //present value
   value_list->propertyIdentifier = PROP_PRESENT_VALUE;
   value_list->propertyArrayIndex = BACNET_ARRAY_ALL;

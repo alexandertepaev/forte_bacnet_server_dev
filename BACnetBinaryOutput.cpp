@@ -14,6 +14,10 @@
 #include "BACnetBinaryOutput_gen.cpp"
 #endif
 
+#include "objects/bacnet_binary_output_object.h"
+#include "bacnet_server_controller.h"
+#include "BACnetServer.h"
+
 DEFINE_FIRMWARE_FB(FORTE_BACnetBinaryOutput, g_nStringIdBACnetBinaryOutput)
 
 const CStringDictionary::TStringId FORTE_BACnetBinaryOutput::scm_anDataInputNames[] = {g_nStringIdQI, g_nStringIdPresentValueIn, g_nStringIdInService, g_nStringIdObjectID, g_nStringIdObjectName, g_nStringIdPresentValueInit, g_nStringIdReversePolarity, g_nStringIdCOVReporting};
@@ -43,16 +47,48 @@ const SFBInterfaceSpec FORTE_BACnetBinaryOutput::scm_stFBInterfaceSpec = {
   2,scm_astAdapterInstances};
 
 
+FORTE_BACnetBinaryOutput::FORTE_BACnetBinaryOutput(const CStringDictionary::TStringId pa_nInstanceNameId, CResource *pa_poSrcRes) : \
+CBacnetObjectConfigFB(pa_poSrcRes, &scm_stFBInterfaceSpec, pa_nInstanceNameId, m_anFBConnData, m_anFBVarsData), mObject(NULL) {
+}
+
+FORTE_BACnetBinaryOutput::~FORTE_BACnetBinaryOutput(){
+}
+
 void FORTE_BACnetBinaryOutput::executeEvent(int pa_nEIID){
-  switch(pa_nEIID){
-//     case scm_nEventWRITE_PR_VALID:
-// #error add code for WRITE_PR_VAL event!
-// /*
-//   do not forget to send output event, calling e.g.
-//       sendOutputEvent(scm_nEventCNFID);
-// */
-//       break;
+
+  if(pa_nEIID == cg_nExternalEventID) { 
+    updatePresentValueOutput(mObject->getPresentValue(), true);
+  } else if (pa_nEIID == scm_nEventWRITE_PR_VALID) {
+    mObject->setPresentValue(PresentValueIn());
+    updatePresentValueOutput(mObject->getPresentValue(), true);
+  } else {
+    CBacnetObjectConfigFB::executeEvent(pa_nEIID);
   }
+}
+
+bool FORTE_BACnetBinaryOutput::init() {
+  DEVLOG_DEBUG("[FORTE_BACnetBinaryOutput] init(): initialising config fg\n");
+  mObject = new CBacnetBinaryOutputObject(ObjectID(), PresentValueInit(), COVReporting(), this);
+
+  CBacnetServerController *controller = FORTE_BACnetServer::getServerController();
+
+  if(controller == NULL)
+    return false;
+
+  controller->addObjectTableEntry(mObject);
+
+  if(COVReporting() == true)
+    controller->addCOVReportersEntry(mObject);
+
+  updatePresentValueOutput(mObject->getPresentValue(), false);
+
+  return true;
+}
+
+void FORTE_BACnetBinaryOutput::updatePresentValueOutput(bool paValue, bool paFireIndEvent) {
+   PresentValueOut() = paValue;
+   if(paFireIndEvent)
+    sendOutputEvent(scm_nEventINDID);
 }
 
 

@@ -1,27 +1,23 @@
-#ifndef _BACNET_BV_OBJCET_H_
-#define _BACNET_BV_OBJCET_H_
+#ifndef _BACNET_AI_OBJCET_H_
+#define _BACNET_AI_OBJCET_H_
 
+#include "bacnet_object.h"
 #include "bacnet_cov_reporting_object.h"
 
-// class CBacnetBinaryValueObject : public CBacnetObject, public CBacnetCOVReportingObject {
-
-class CBacnetBinaryValueObject : public CBacnetCOVReportingObject { 
+class CBACnetAnalogInputObject : public CBacnetCOVReportingObject {
   public:
-    CBacnetBinaryValueObject(uint32_t paObjectID, bool paPresentValue, bool paCOVReportingEnabled, forte::core::io::IOConfigFBBase *paConfigFB);
-    ~CBacnetBinaryValueObject();
+    CBACnetAnalogInputObject(uint32_t paObjectID, float paPresentValue, bool paCOVReportingEnabled, float paCOVIncrement, forte::core::io::IOConfigFBBase *paConfigFB);
+    ~CBACnetAnalogInputObject();
     int readProperty(uint8_t *buffer,  BACNET_PROPERTY_ID property);
     bool writeProperty(BACNET_APPLICATION_DATA_VALUE *paData, BACNET_PROPERTY_ID property);
-    bool getPresentValue();
-    void setPresentValue(bool paValue);
+    float getPresentValue();
+    void setPresentValue(float paValue);
     void encodeValueList(BACNET_PROPERTY_VALUE* value_list);
   protected:
 
   private:
-    bool mPresentValue;
-
-    // in case OutOfService is required
-    // bool mOutOfService;
-
+    float mPresentValue;
+    float mCOVIncrement;
 };
 
 /*
@@ -30,14 +26,16 @@ class CBacnetBinaryValueObject : public CBacnetCOVReportingObject {
   Object_Identifier                 -     R     - BACnetObjectIdentifier
   Object_Name                       -     R     - CharacterString
   Object_Type                       -     R     - BACnetObjectType
-  Present_Value                     -     W     - BACnetBinaryPV
+  Present_Value                     -     W     - REAL
   Status_Flags                      -     R     - BACnetStatusFlags
   Event_State                       -     R     - BACnetEventState
   Out_Of_Service                    -     R     - BOOLEAN
+  Units                             -     R     - BACnetEngineeringUnits
   Priority_Array                    -     R     - BACnetPriorityArray
-  Relinquish_Default                -     R     - BACnetBinaryPV
+  Relinquish_Default                -     R     - REAL
+  COV_Increment                     -     R     - REAL
   Property_List                     -     R     - BACnetARRAY[N] of BACnetPropertyIdentifier
+  
 */
 
 #endif
-

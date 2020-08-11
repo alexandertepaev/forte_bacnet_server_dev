@@ -32,7 +32,8 @@ bool CBacnetServerController::init(uint16_t paPort) {
   return true;
 }
 
-#define NETWORK_IFACE_NAME "eth0"
+//#define NETWORK_IFACE_NAME "eth0"
+#define NETWORK_IFACE_NAME "wlan0"
 bool CBacnetServerController::initNetworkAddresses(){
   ifreq ifr = {};
   struct sockaddr_in ip_address;

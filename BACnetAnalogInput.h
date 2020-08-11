@@ -3,29 +3,31 @@
  ***
  *** This file was generated using the 4DIAC FORTE Export Filter V1.0.x!
  ***
- *** Name: BACnetServer
+ *** Name: BACnetAnalogInput
  *** Description: Service Interface Function Block Type
  *** Version: 
- ***     1.0: 2020-02-02/root - null - 
+ ***     1.0: 2020-02-02/root -  - 
  *************************************************************************/
 
-#ifndef _BACNETSERVER_H_
-#define _BACNETSERVER_H_
+#ifndef _BACnetAnalogInput_H_
+#define _BACnetAnalogInput_H_
 
 #include <funcbloc.h>
 #include <forte_bool.h>
+#include <forte_real.h>
 #include <forte_uint.h>
 #include <forte_wstring.h>
 #include "BACnetAdapter.h"
 
-// #include"../../forte-incubation_1.11.0/src/core/io/configFB/io_base.h"
-#include <core/io/configFB/io_base.h>
+#include "bacnet_object_config_fb.h"
 
-class CBacnetServerController;
-class CBacnetDeviceObject;
+class CBACnetAnalogInputObject;
 
-class FORTE_BACnetServer: public forte::core::io::IOConfigFBBase {
-  DECLARE_FIRMWARE_FB(FORTE_BACnetServer)
+// class FORTE_BACnetAnalogInput: public CFunctionBlock{
+class FORTE_BACnetAnalogInput: public CBacnetObjectConfigFB{
+
+
+  DECLARE_FIRMWARE_FB(FORTE_BACnetAnalogInput)
 
 private:
   static const CStringDictionary::TStringId scm_anDataInputNames[];
@@ -34,16 +36,32 @@ private:
     return *static_cast<CIEC_BOOL*>(getDI(0));
   };
 
-  CIEC_UINT &Port() {
-    return *static_cast<CIEC_UINT*>(getDI(1));
+  CIEC_REAL &PresentValueIn() {
+    return *static_cast<CIEC_REAL*>(getDI(1));
   };
 
-  CIEC_UINT &DeviceID() {
-    return *static_cast<CIEC_UINT*>(getDI(2));
+  CIEC_BOOL &InService() {
+    return *static_cast<CIEC_BOOL*>(getDI(2));
   };
 
-  CIEC_WSTRING &DeviceName() {
-    return *static_cast<CIEC_WSTRING*>(getDI(3));
+  CIEC_UINT &ObjectID() {
+    return *static_cast<CIEC_UINT*>(getDI(3));
+  };
+
+  CIEC_WSTRING &ObjectName() {
+    return *static_cast<CIEC_WSTRING*>(getDI(4));
+  };
+
+  CIEC_REAL &PresentValueInit() {
+    return *static_cast<CIEC_REAL*>(getDI(5));
+  };
+
+  CIEC_BOOL &COVReporting() {
+    return *static_cast<CIEC_BOOL*>(getDI(6));
+  };
+
+  CIEC_REAL &COVIncrement() {
+    return *static_cast<CIEC_REAL*>(getDI(7));
   };
 
   static const CStringDictionary::TStringId scm_anDataOutputNames[];
@@ -56,13 +74,16 @@ private:
     return *static_cast<CIEC_WSTRING*>(getDO(1));
   };
 
-  static const TEventID scm_nEventINITID = 0;
+  CIEC_REAL &PresentValueOut() {
+    return *static_cast<CIEC_REAL*>(getDO(2));
+  };
+
+  static const TEventID scm_nEventWRITE_PR_VALID = 0;
   static const TForteInt16 scm_anEIWithIndexes[];
   static const TDataIOID scm_anEIWith[];
   static const CStringDictionary::TStringId scm_anEventInputNames[];
 
-  static const TEventID scm_nEventINITOID = 0;
-  static const TEventID scm_nEventINDID = 1;
+  static const TEventID scm_nEventINDID = 0;
   static const TForteInt16 scm_anEOWithIndexes[];
   static const TDataIOID scm_anEOWith[];
   static const CStringDictionary::TStringId scm_anEventOutputNames[];
@@ -73,29 +94,31 @@ private:
     return (*static_cast<FORTE_BACnetAdapter*>(m_apoAdapters[0]));
   };
   static const int scm_nBACnetAdapterOutAdpNum = 0;
+  FORTE_BACnetAdapter& BACnetAdapterIn() {
+    return (*static_cast<FORTE_BACnetAdapter*>(m_apoAdapters[1]));
+  };
+  static const int scm_nBACnetAdapterInAdpNum = 1;
   static const SFBInterfaceSpec scm_stFBInterfaceSpec;
 
-   FORTE_FB_DATA_ARRAY(2, 4, 2, 1);
+   FORTE_FB_DATA_ARRAY(1, 8, 3, 2);
 
   void executeEvent(int pa_nEIID);
 
-  static const char * const scmOK;
-  static const char * const scmInitFailed;
+  void updatePresentValueOutput(float paValue, bool paFireIndEvent);
 
+protected:
   bool init();
 
-  static CBacnetServerController *mController;
-
-  CBacnetDeviceObject *mDeviceObject;
+  CBACnetAnalogInputObject *mObject;
 
 public:
-  FORTE_BACnetServer(const CStringDictionary::TStringId pa_nInstanceNameId, CResource *pa_poSrcRes);
+  FORTE_BACnetAnalogInput(const CStringDictionary::TStringId pa_nInstanceNameId, CResource *pa_poSrcRes);
+  ~FORTE_BACnetAnalogInput();
+  // FUNCTION_BLOCK_CTOR(FORTE_BACnetAnalogInput){
+  // };
 
-  //FORTE_BACnetServer(CResource *paSrcRes, const SFBInterfaceSpec *paInterfaceSpec, const CStringDictionary::TStringId paInstanceNameId, TForteByte *paFBConnData, TForteByte *paFBVarsData);
+  // virtual ~FORTE_BACnetAnalogInput(){};
 
-  ~FORTE_BACnetServer();
-
-  static CBacnetServerController* getServerController();
 };
 
 #endif //close the ifdef sequence from the beginning of the file

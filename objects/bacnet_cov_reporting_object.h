@@ -3,6 +3,8 @@
 
 #include "bacnet_object.h"
 
+#include <cmath> // TODO - check 
+
 // class CBacnetCOVReportingObject {
 class CBacnetCOVReportingObject: public CBacnetObject {
   private:
