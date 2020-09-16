@@ -9,14 +9,17 @@
  ***     1.0: 2020-02-02/root -  - 
  *************************************************************************/
 
-#include "BACnetAnalogValue.h"
+#include "bacnet_aval_config_fb.h"
+#ifdef FORTE_ENABLE_GENERATED_SOURCE_CPP
+#include "bacnet_aval_config_fb_gen.cpp"
+#endif
 #ifdef FORTE_ENABLE_GENERATED_SOURCE_CPP
 #include "BACnetAnalogValue_gen.cpp"
 #endif
 
 #include "objects/bacnet_analog_value_object.h"
 #include "bacnet_server_controller.h"
-#include "BACnetServer.h"
+#include "bacnet_server_config_fb.h"
 
 DEFINE_FIRMWARE_FB(FORTE_BACnetAnalogValue, g_nStringIdBACnetAnalogValue)
 
@@ -85,7 +88,7 @@ bool FORTE_BACnetAnalogValue::init(){
 
   mObject = new CBacnetAnalogValueObject(ObjectID(), PresentValueInit(), COVReporting(), COVIncrement(), this);
 
-  CBacnetServerController *controller = FORTE_BACnetServer::getServerController();
+  CBacnetServerController *controller = CBacnetServerConfigFB::getServerController();
 
   if(controller == NULL)
     return false;

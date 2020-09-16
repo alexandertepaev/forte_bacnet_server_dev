@@ -9,14 +9,17 @@
  ***     1.0: 2020-02-02/root -  - 
  *************************************************************************/
 
-#include "BACnetBinaryValue.h"
+#include "bacnet_bval_config_fb.h"
+#ifdef FORTE_ENABLE_GENERATED_SOURCE_CPP
+#include "bacnet_bval_config_fb_gen.cpp"
+#endif
 #ifdef FORTE_ENABLE_GENERATED_SOURCE_CPP
 #include "BACnetBinaryValue_gen.cpp"
 #endif
 
 #include "objects/bacnet_binary_value_object.h"
 #include "bacnet_server_controller.h"
-#include "BACnetServer.h"
+#include "bacnet_server_config_fb.h"
 
 DEFINE_FIRMWARE_FB(FORTE_BACnetBinaryValue, g_nStringIdBACnetBinaryValue)
 
@@ -74,7 +77,7 @@ bool FORTE_BACnetBinaryValue::init(){
   DEVLOG_DEBUG("[FORTE_BACnetBinaryValue] init(): initialising config fg\n");
   mObject = new CBacnetBinaryValueObject(ObjectID(), PresentValueInit(), COVReporting(), this);
 
-  CBacnetServerController *controller = FORTE_BACnetServer::getServerController();
+  CBacnetServerController *controller = CBacnetServerConfigFB::getServerController();
 
   if(controller == NULL)
     return false;

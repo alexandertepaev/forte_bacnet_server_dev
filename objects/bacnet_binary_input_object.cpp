@@ -1,5 +1,5 @@
 #include "bacnet_binary_input_object.h"
-#include "../BACnetBinaryInput.h"
+// #include "../BACnetBinaryInput.h"
 
 CBacnetBinaryInputObject::CBacnetBinaryInputObject(uint32_t paObjectID, bool paPresentValue, bool paReversePolarity, bool paCOVReportingEnabled, forte::core::io::IOConfigFBBase *paConfigFB) : CBacnetCOVReportingObject(OBJECT_BINARY_INPUT, paObjectID, paCOVReportingEnabled, paConfigFB), mPresentValue(paPresentValue), mReversePolarity(paReversePolarity), mOutOfService(true)
 {

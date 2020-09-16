@@ -1,14 +1,14 @@
-/*************************************************************************
- *** FORTE Library Element
- ***
- *** This file was generated using the 4DIAC FORTE Export Filter V1.0.x!
- ***
- *** Name: BACnetServer
- *** Description: Service Interface Function Block Type
- *** Version: 
- ***     1.0: 2020-02-02/root - null - 
- *************************************************************************/
-
+/*******************************************************************************
+ * Copyright (c) 2020 Alexander Tepaev github.com/alexandertepaev
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ * Contributors:
+ *   Alexander Tepaev
+ *******************************************************************************/
 #ifndef _BACNETSERVER_H_
 #define _BACNETSERVER_H_
 
@@ -18,14 +18,34 @@
 #include <forte_wstring.h>
 #include "BACnetAdapter.h"
 
-// #include"../../forte-incubation_1.11.0/src/core/io/configFB/io_base.h"
 #include <core/io/configFB/io_base.h>
 
 class CBacnetServerController;
 class CBacnetDeviceObject;
 
-class FORTE_BACnetServer: public forte::core::io::IOConfigFBBase {
-  DECLARE_FIRMWARE_FB(FORTE_BACnetServer)
+/*! @brief BACnet Server configuration FB class
+ *
+ * BACnet Server configuration FB class, which represents a FB standing in the head of the Server 
+ * configuration daisy-chain.
+ * The main purpose of Server COnfiguration FB is to gather all the data required by the BACnet 
+ * server and to instantiate and configure the BACnet server controller.
+ */
+class CBacnetServerConfigFB: public forte::core::io::IOConfigFBBase {
+  DECLARE_FIRMWARE_FB(CBacnetServerConfigFB)
+
+public:
+  CBacnetServerConfigFB(const CStringDictionary::TStringId pa_nInstanceNameId, CResource *pa_poSrcRes);
+
+  ~CBacnetServerConfigFB();
+
+  /*! @brief Returns a pointer to server controller
+   *
+   * This method returns a pointer to server controller instance.
+   * Used by derivatives of CBacnetObjectConfigFB. 
+   * 
+   * @return Pointer to server controller instance
+   */
+  static CBacnetServerController* getServerController();
 
 private:
   static const CStringDictionary::TStringId scm_anDataInputNames[];
@@ -76,27 +96,41 @@ private:
   static const SFBInterfaceSpec scm_stFBInterfaceSpec;
 
    FORTE_FB_DATA_ARRAY(2, 4, 2, 1);
-
+  
+  /*! @brief Handles input events 
+   *
+   * This method represents an entry point of CServerConfigFB's execution.
+   * Handle INIT(+), INIT(-), BACnetAdapterOut.INITO(+) events.
+   * Calls init() function upon initialization, and server controller's initDone() after 
+   * the initialization is finished
+   * 
+   * @param pa_nEIID ID of the triggered input event
+   */
   void executeEvent(int pa_nEIID);
 
-  static const char * const scmOK;
-  static const char * const scmInitFailed;
+  //! STATUS messages
+  constexpr static const char * const scmOK = "Initialized";
+  constexpr static const char * const scmInitFailed = "Initialization failed";
 
-  bool init();
 
-  static CBacnetServerController *mController;
+  /*! @brief Initializes BACnet server controller
+   *
+   * This method is used for the initialization of the BACnet server controller.
+   * The initialization is performed by creating the client controller and adding a 
+   * new instance of BACnet Device object into its object list.
+   * 
+   * @return String containing error message, or 0 in case of success
+   */
+  const char* init();
 
-  CBacnetDeviceObject *mDeviceObject;
+  // FIXME: static -> same for all instances, rm static or create 
+  // static list of server controllers and assign unique ID to each server controller -> in 
+  // getServer controller look up for a specific server controller
+  static CBacnetServerController *mController; //!< Static pointer to Server Controller instance
 
-public:
-  FORTE_BACnetServer(const CStringDictionary::TStringId pa_nInstanceNameId, CResource *pa_poSrcRes);
+  CBacnetDeviceObject *mDeviceObject; //!< Pointer to BACnet Device Object instance
 
-  //FORTE_BACnetServer(CResource *paSrcRes, const SFBInterfaceSpec *paInterfaceSpec, const CStringDictionary::TStringId paInstanceNameId, TForteByte *paFBConnData, TForteByte *paFBVarsData);
 
-  ~FORTE_BACnetServer();
-
-  static CBacnetServerController* getServerController();
 };
 
-#endif //close the ifdef sequence from the beginning of the file
-
+#endif

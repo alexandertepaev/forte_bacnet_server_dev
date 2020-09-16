@@ -9,14 +9,17 @@
  ***     1.0: 2020-03-03/root -  - 
  *************************************************************************/
 
-#include "BACnetBinaryOutput.h"
+#include "bacnet_bout_config_fb.h"
+#ifdef FORTE_ENABLE_GENERATED_SOURCE_CPP
+#include "bacnet_bout_config_fb_gen.cpp"
+#endif
 #ifdef FORTE_ENABLE_GENERATED_SOURCE_CPP
 #include "BACnetBinaryOutput_gen.cpp"
 #endif
 
 #include "objects/bacnet_binary_output_object.h"
 #include "bacnet_server_controller.h"
-#include "BACnetServer.h"
+#include "bacnet_server_config_fb.h"
 
 DEFINE_FIRMWARE_FB(FORTE_BACnetBinaryOutput, g_nStringIdBACnetBinaryOutput)
 
@@ -70,7 +73,7 @@ bool FORTE_BACnetBinaryOutput::init() {
   DEVLOG_DEBUG("[FORTE_BACnetBinaryOutput] init(): initialising config fg\n");
   mObject = new CBacnetBinaryOutputObject(ObjectID(), PresentValueInit(), COVReporting(), this);
 
-  CBacnetServerController *controller = FORTE_BACnetServer::getServerController();
+  CBacnetServerController *controller = CBacnetServerConfigFB::getServerController();
 
   if(controller == NULL)
     return false;
