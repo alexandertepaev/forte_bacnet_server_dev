@@ -54,8 +54,10 @@ const SFBInterfaceSpec CBacnetServerConfigFB::scm_stFBInterfaceSpec = {
   1,scm_astAdapterInstances};
 
 
-CBacnetServerConfigFB::CBacnetServerConfigFB(const CStringDictionary::TStringId pa_nInstanceNameId, CResource *pa_poSrcRes) : \
+// CBacnetServerConfigFB::CBacnetServerConfigFB(const CStringDictionary::TStringId pa_nInstanceNameId, CResource *pa_poSrcRes) : \
  forte::core::io::IOConfigFBBase(pa_poSrcRes, &scm_stFBInterfaceSpec, pa_nInstanceNameId, m_anFBConnData, m_anFBVarsData)
+CBacnetServerConfigFB::CBacnetServerConfigFB(const CStringDictionary::TStringId pa_nInstanceNameId, CResource *pa_poSrcRes) : \
+CBacnetObjectConfigFB(pa_poSrcRes, &scm_stFBInterfaceSpec, pa_nInstanceNameId, m_anFBConnData, m_anFBVarsData)
 {
 }
 
@@ -65,7 +67,8 @@ void CBacnetServerConfigFB::executeEvent(int pa_nEIID){
   if(pa_nEIID == scm_nEventINITID && true == QI()) {
     // INIT event
     DEVLOG_DEBUG("[CBacnetServerConfigFB] executeEvent(): INIT BACnet Server\n");
-    const char *error = init();
+    // const char *error = init();
+    bool error = init();
     if(0 == error) {
       if (BACnetAdapterOut().getPeer() != 0) {
         // Pass the INIT event to the next config FB
@@ -79,7 +82,7 @@ void CBacnetServerConfigFB::executeEvent(int pa_nEIID){
       }  
     } else {
       QO() = false;
-      STATUS() = error;
+      // STATUS() = error;
       sendOutputEvent(scm_nEventINITOID);
     }
   } else if(pa_nEIID == BACnetAdapterOut().INITO()) {
@@ -90,6 +93,7 @@ void CBacnetServerConfigFB::executeEvent(int pa_nEIID){
       mController->initDone();
   }
 }
+
 
 const char* CBacnetServerConfigFB::init() {
   // create and init server controller

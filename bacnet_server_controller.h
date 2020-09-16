@@ -9,6 +9,7 @@
  * Contributors:
  *   Alexander Tepaev
  *******************************************************************************/
+
 #ifndef _BACNET_SERVER_CONTROLLER_H_
 #define _BACNET_SERVER_CONTROLLER_H_
 
@@ -370,8 +371,6 @@ private:
   void setPriority(int paPriority){std::ignore = paPriority;}; // supress unused parameter warning
   int getPriority(void) const { return 0; };
   size_t getIdentifier() const { return 0;};
-
-
 
 };
 

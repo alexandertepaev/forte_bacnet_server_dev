@@ -18,7 +18,8 @@
 #include <forte_wstring.h>
 #include "BACnetAdapter.h"
 
-#include <core/io/configFB/io_base.h>
+// #include <core/io/configFB/io_base.h>
+#include "bacnet_object_config_fb.h"
 
 class CBacnetServerController;
 class CBacnetDeviceObject;
@@ -30,7 +31,8 @@ class CBacnetDeviceObject;
  * The main purpose of Server COnfiguration FB is to gather all the data required by the BACnet 
  * server and to instantiate and configure the BACnet server controller.
  */
-class CBacnetServerConfigFB: public forte::core::io::IOConfigFBBase {
+// class CBacnetServerConfigFB: public forte::core::io::IOConfigFBBase {
+class CBacnetServerConfigFB: public CBacnetObjectConfigFB {
   DECLARE_FIRMWARE_FB(CBacnetServerConfigFB)
 
 public:
@@ -118,6 +120,7 @@ private:
    * This method is used for the initialization of the BACnet server controller.
    * The initialization is performed by creating the client controller and adding a 
    * new instance of BACnet Device object into its object list.
+   * // TODO lot of duplicate code, more abstraction needed
    * 
    * @return String containing error message, or 0 in case of success
    */

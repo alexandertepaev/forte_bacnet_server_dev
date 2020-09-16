@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FBType Name="BACnetAnalogInput" Comment="Service Interface Function Block Type">
+	<Identification Standard="61499-2">
+	</Identification>
+	<VersionInfo Version="1.0" Author="root" Date="2020-03-04">
+	</VersionInfo>
+	<InterfaceList>
+		<EventInputs>
+			<Event Name="WRITE_PR_VAL" Type="Event" Comment="Write Present_Value event">
+				<With Var="QI"/>
+				<With Var="PresentValueIn"/>
+				<With Var="InService"/>
+			</Event>
+		</EventInputs>
+		<EventOutputs>
+			<Event Name="IND" Type="Event" Comment="Present_Value write indication">
+				<With Var="QO"/>
+				<With Var="STATUS"/>
+				<With Var="PresentValueOut"/>
+			</Event>
+		</EventOutputs>
+		<InputVars>
+			<VarDeclaration Name="QI" Type="BOOL" Comment="Event Input Qualifier"/>
+			<VarDeclaration Name="PresentValueIn" Type="REAL" Comment="Value to be written into the Present_Value property"/>
+			<VarDeclaration Name="InService" Type="BOOL" Comment="Lifestatus flag of the object"/>
+			<VarDeclaration Name="ObjectID" Type="UINT" Comment="Identifier of the object"/>
+			<VarDeclaration Name="PresentValueInit" Type="REAL" Comment="Initial value of the Present_Value property"/>
+			<VarDeclaration Name="COVReporting" Type="BOOL" Comment="Enable/Disable COV reporting flag"/>
+			<VarDeclaration Name="COVIncrement" Type="REAL" Comment="Difference in change required for triggering COV notifications"/>
+		</InputVars>
+		<OutputVars>
+			<VarDeclaration Name="QO" Type="BOOL" Comment="Event Output Qualifier"/>
+			<VarDeclaration Name="STATUS" Type="WSTRING" Comment="Status"/>
+			<VarDeclaration Name="PresentValueOut" Type="REAL" Comment="Value of the Present_Value property"/>
+		</OutputVars>
+		<Plugs>
+			<AdapterDeclaration Name="BACnetAdapterOut" Type="BACnetAdapter" Comment="BACnet adapter plug"/>
+		</Plugs>
+		<Sockets>
+			<AdapterDeclaration Name="BACnetAdapterIn" Type="BACnetAdapter" Comment=""/>
+		</Sockets>
+	</InterfaceList>
+</FBType>

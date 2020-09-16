@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FBType Name="BACnetServer" Comment="Service Interface Function Block Type">
+	<Identification Standard="61499-2">
+	</Identification>
+	<VersionInfo Version="1.0" Author="root" Date="2020-02-02">
+	</VersionInfo>
+	<InterfaceList>
+		<EventInputs>
+			<Event Name="INIT" Type="Event" Comment="Service Initialization">
+				<With Var="QI"/>
+			</Event>
+		</EventInputs>
+		<EventOutputs>
+			<Event Name="INITO" Type="Event" Comment="Initialization Confirm">
+				<With Var="QO"/>
+				<With Var="STATUS"/>
+			</Event>
+		</EventOutputs>
+		<InputVars>
+			<VarDeclaration Name="QI" Type="BOOL" Comment="Event Input Qualifier"/>
+			<VarDeclaration Name="Port" Type="UINT" Comment="UDP Port number of the communication socket"/>
+			<VarDeclaration Name="DeviceID" Type="UINT" Comment="Identifier of the server's Device Object"/>
+		</InputVars>
+		<OutputVars>
+			<VarDeclaration Name="QO" Type="BOOL" Comment="Event Output Qualifier"/>
+			<VarDeclaration Name="STATUS" Type="WSTRING" Comment="Service Status"/>
+		</OutputVars>
+		<Plugs>
+			<AdapterDeclaration Name="BACnetAdapterOut" Type="BACnetAdapter" Comment="BACnet adapter plug"/>
+		</Plugs>
+	</InterfaceList>
+</FBType>

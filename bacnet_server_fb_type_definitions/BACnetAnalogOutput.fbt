@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FBType Name="BACnetAnalogOutput" Comment="Service Interface Function Block Type">
+	<Identification Standard="61499-2">
+	</Identification>
+	<VersionInfo Version="1.0" Author="root" Date="2020-03-04">
+	</VersionInfo>
+	<InterfaceList>
+		<EventInputs>
+			<Event Name="WRITE_PR_VAL" Type="Event" Comment="Service Initialization">
+				<With Var="QI"/>
+				<With Var="PresentValueIn"/>
+				<With Var="InService"/>
+			</Event>
+		</EventInputs>
+		<EventOutputs>
+			<Event Name="IND" Type="Event" Comment="Indication from Resource">
+				<With Var="QO"/>
+				<With Var="STATUS"/>
+				<With Var="PresentValueOut"/>
+			</Event>
+		</EventOutputs>
+		<InputVars>
+			<VarDeclaration Name="QI" Type="BOOL" Comment="Event Input Qualifier"/>
+			<VarDeclaration Name="PresentValueIn" Type="REAL" Comment=""/>
+			<VarDeclaration Name="InService" Type="BOOL" Comment=""/>
+			<VarDeclaration Name="ObjectID" Type="UINT" Comment=""/>
+			<VarDeclaration Name="PresentValueInit" Type="REAL" Comment=""/>
+			<VarDeclaration Name="COVReporting" Type="BOOL" Comment=""/>
+			<VarDeclaration Name="COVIncrement" Type="REAL" Comment=""/>
+		</InputVars>
+		<OutputVars>
+			<VarDeclaration Name="QO" Type="BOOL" Comment="Event Output Qualifier"/>
+			<VarDeclaration Name="STATUS" Type="WSTRING" Comment="Service Status"/>
+			<VarDeclaration Name="PresentValueOut" Type="REAL" Comment=""/>
+		</OutputVars>
+		<Plugs>
+			<AdapterDeclaration Name="BACnetAdapterOut" Type="BACnetAdapter" Comment=""/>
+		</Plugs>
+		<Sockets>
+			<AdapterDeclaration Name="BACnetAdapterIn" Type="BACnetAdapter" Comment=""/>
+		</Sockets>
+	</InterfaceList>
+</FBType>

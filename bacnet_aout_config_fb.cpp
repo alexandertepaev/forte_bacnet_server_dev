@@ -1,14 +1,14 @@
-/*************************************************************************
- *** FORTE Library Element
- ***
- *** This file was generated using the 4DIAC FORTE Export Filter V1.0.x!
- ***
- *** Name: BACnetAnalogOutput
- *** Description: Service Interface Function Block Type
- *** Version: 
- ***     1.0: 2020-03-04/root -  - 
- *************************************************************************/
-
+/*******************************************************************************
+ * Copyright (c) 2020 Alexander Tepaev github.com/alexandertepaev
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ * Contributors:
+ *   Alexander Tepaev
+ *******************************************************************************/
 #include "bacnet_aout_config_fb.h"
 #ifdef FORTE_ENABLE_GENERATED_SOURCE_CPP
 #include "bacnet_aout_config_fb_gen.cpp"
@@ -21,81 +21,71 @@
 #include "bacnet_server_controller.h"
 #include "bacnet_server_config_fb.h"
 
-DEFINE_FIRMWARE_FB(FORTE_BACnetAnalogOutput, g_nStringIdBACnetAnalogOutput)
+DEFINE_FIRMWARE_FB(CBacnetAnalogOutputConfigFB, g_nStringIdBACnetAnalogOutput)
 
-const CStringDictionary::TStringId FORTE_BACnetAnalogOutput::scm_anDataInputNames[] = {g_nStringIdQI, g_nStringIdPresentValueIn, g_nStringIdInService, g_nStringIdObjectID, g_nStringIdObjectName, g_nStringIdPresentValueInit, g_nStringIdCOVReporting, g_nStringIdCOVIncrement};
+const CStringDictionary::TStringId CBacnetAnalogOutputConfigFB::scm_anDataInputNames[] = {g_nStringIdQI, g_nStringIdPresentValueIn, g_nStringIdInService, g_nStringIdObjectID, g_nStringIdObjectName, g_nStringIdPresentValueInit, g_nStringIdCOVReporting, g_nStringIdCOVIncrement};
 
-const CStringDictionary::TStringId FORTE_BACnetAnalogOutput::scm_anDataInputTypeIds[] = {g_nStringIdBOOL, g_nStringIdREAL, g_nStringIdBOOL, g_nStringIdUINT, g_nStringIdWSTRING, g_nStringIdREAL, g_nStringIdBOOL, g_nStringIdREAL};
+const CStringDictionary::TStringId CBacnetAnalogOutputConfigFB::scm_anDataInputTypeIds[] = {g_nStringIdBOOL, g_nStringIdREAL, g_nStringIdBOOL, g_nStringIdUINT, g_nStringIdWSTRING, g_nStringIdREAL, g_nStringIdBOOL, g_nStringIdREAL};
 
-const CStringDictionary::TStringId FORTE_BACnetAnalogOutput::scm_anDataOutputNames[] = {g_nStringIdQO, g_nStringIdSTATUS, g_nStringIdPresentValueOut};
+const CStringDictionary::TStringId CBacnetAnalogOutputConfigFB::scm_anDataOutputNames[] = {g_nStringIdQO, g_nStringIdSTATUS, g_nStringIdPresentValueOut};
 
-const CStringDictionary::TStringId FORTE_BACnetAnalogOutput::scm_anDataOutputTypeIds[] = {g_nStringIdBOOL, g_nStringIdWSTRING, g_nStringIdREAL};
+const CStringDictionary::TStringId CBacnetAnalogOutputConfigFB::scm_anDataOutputTypeIds[] = {g_nStringIdBOOL, g_nStringIdWSTRING, g_nStringIdREAL};
 
-const TForteInt16 FORTE_BACnetAnalogOutput::scm_anEIWithIndexes[] = {0};
-const TDataIOID FORTE_BACnetAnalogOutput::scm_anEIWith[] = {0, 1, 2, 255};
-const CStringDictionary::TStringId FORTE_BACnetAnalogOutput::scm_anEventInputNames[] = {g_nStringIdINIT};
+const TForteInt16 CBacnetAnalogOutputConfigFB::scm_anEIWithIndexes[] = {0};
+const TDataIOID CBacnetAnalogOutputConfigFB::scm_anEIWith[] = {0, 1, 2, 255};
+const CStringDictionary::TStringId CBacnetAnalogOutputConfigFB::scm_anEventInputNames[] = {g_nStringIdWRITE_PR_VAL};
 
-const TDataIOID FORTE_BACnetAnalogOutput::scm_anEOWith[] = {0, 1, 2, 255};
-const TForteInt16 FORTE_BACnetAnalogOutput::scm_anEOWithIndexes[] = {0, -1};
-const CStringDictionary::TStringId FORTE_BACnetAnalogOutput::scm_anEventOutputNames[] = {g_nStringIdIND};
+const TDataIOID CBacnetAnalogOutputConfigFB::scm_anEOWith[] = {0, 1, 2, 255};
+const TForteInt16 CBacnetAnalogOutputConfigFB::scm_anEOWithIndexes[] = {0, -1};
+const CStringDictionary::TStringId CBacnetAnalogOutputConfigFB::scm_anEventOutputNames[] = {g_nStringIdIND};
 
-const SAdapterInstanceDef FORTE_BACnetAnalogOutput::scm_astAdapterInstances[] = {
+const SAdapterInstanceDef CBacnetAnalogOutputConfigFB::scm_astAdapterInstances[] = {
 {g_nStringIdBACnetAdapter, g_nStringIdBACnetAdapterOut, true },
 {g_nStringIdBACnetAdapter, g_nStringIdBACnetAdapterIn, false }};
 
-const SFBInterfaceSpec FORTE_BACnetAnalogOutput::scm_stFBInterfaceSpec = {
+const SFBInterfaceSpec CBacnetAnalogOutputConfigFB::scm_stFBInterfaceSpec = {
   1,  scm_anEventInputNames,  scm_anEIWith,  scm_anEIWithIndexes,
   1,  scm_anEventOutputNames,  scm_anEOWith, scm_anEOWithIndexes,  8,  scm_anDataInputNames, scm_anDataInputTypeIds,
   3,  scm_anDataOutputNames, scm_anDataOutputTypeIds,
   2,scm_astAdapterInstances};
 
-FORTE_BACnetAnalogOutput::FORTE_BACnetAnalogOutput(const CStringDictionary::TStringId pa_nInstanceNameId, CResource *pa_poSrcRes) : \
+CBacnetAnalogOutputConfigFB::CBacnetAnalogOutputConfigFB(const CStringDictionary::TStringId pa_nInstanceNameId, CResource *pa_poSrcRes) : \
 CBacnetObjectConfigFB(pa_poSrcRes, &scm_stFBInterfaceSpec, pa_nInstanceNameId, m_anFBConnData, m_anFBVarsData) {
 }
 
-FORTE_BACnetAnalogOutput::~FORTE_BACnetAnalogOutput(){
+CBacnetAnalogOutputConfigFB::~CBacnetAnalogOutputConfigFB(){
 }
 
-void FORTE_BACnetAnalogOutput::executeEvent(int pa_nEIID){
+void CBacnetAnalogOutputConfigFB::executeEvent(int pa_nEIID){
   if(pa_nEIID == cg_nExternalEventID) { 
+    QO() = true;
     updatePresentValueOutput(mObject->getPresentValue(), true);
   } else if (pa_nEIID == scm_nEventWRITE_PR_VALID) {
-
-
-    
-    // foo(PresentValueOut());
-
     mObject->setPresentValue(PresentValueIn());
+    QO() = true;
     updatePresentValueOutput(mObject->getPresentValue(), true);
-
-  
   } else {
     CBacnetObjectConfigFB::executeEvent(pa_nEIID);
   }
 }
 
-bool FORTE_BACnetAnalogOutput::init(){
-  DEVLOG_DEBUG("[FORTE_BACnetAnalogOutput] init(): initialising config fg\n");
-
+const char * CBacnetAnalogOutputConfigFB::init(){
+  // create new object
   mObject = new CBacnetAnalogOutputObject(ObjectID(), PresentValueInit(), COVReporting(), COVIncrement(), this);
-
+  // get server controller and update its data structures
   CBacnetServerController *controller = CBacnetServerConfigFB::getServerController();
-
   if(controller == NULL)
-    return false;
-  
+    return scmInitFailed;
   controller->addObjectTableEntry(mObject);
-
   if(COVReporting() == true)
     controller->addCOVReportersEntry(mObject);
-
+  // set PresentValueOut output
   updatePresentValueOutput(mObject->getPresentValue(), false);
-
-  return true;
+  return 0;
 }
 
 
-void FORTE_BACnetAnalogOutput::updatePresentValueOutput(float paValue, bool paFireIndEvent) {
+void CBacnetAnalogOutputConfigFB::updatePresentValueOutput(float paValue, bool paFireIndEvent) {
    PresentValueOut() = paValue;
    if(paFireIndEvent)
     sendOutputEvent(scm_nEventINDID);

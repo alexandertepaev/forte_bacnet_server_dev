@@ -1,8 +1,19 @@
+/*******************************************************************************
+ * Copyright (c) 2020 Alexander Tepaev github.com/alexandertepaev
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ * Contributors:
+ *   Alexander Tepaev
+ *******************************************************************************/
 #include "bacnet_object_config_fb.h"
 
-const char* const CBacnetObjectConfigFB::scmOK = "OK";
-
-CBacnetObjectConfigFB::CBacnetObjectConfigFB(CResource *paSrcRes, const SFBInterfaceSpec *paInterfaceSpec, const CStringDictionary::TStringId paInstanceNameId, TForteByte *paFBConnData, TForteByte *paFBVarsData) : forte::core::io::IOConfigFBBase(paSrcRes, paInterfaceSpec, paInstanceNameId, paFBConnData, paFBVarsData) {}
+// CBacnetObjectConfigFB::CBacnetObjectConfigFB(CResource *paSrcRes, const SFBInterfaceSpec *paInterfaceSpec, const CStringDictionary::TStringId paInstanceNameId, TForteByte *paFBConnData, TForteByte *paFBVarsData) : forte::core::io::IOConfigFBBase(paSrcRes, paInterfaceSpec, paInstanceNameId, paFBConnData, paFBVarsData) {}
+CBacnetObjectConfigFB::CBacnetObjectConfigFB(CResource *paSrcRes, const SFBInterfaceSpec *paInterfaceSpec, const CStringDictionary::TStringId paInstanceNameId, TForteByte *paFBConnData, TForteByte *paFBVarsData) : CEventSourceFB(paSrcRes, paInterfaceSpec, paInstanceNameId, paFBConnData, paFBVarsData) {}
+ 
 
 
 CBacnetObjectConfigFB::~CBacnetObjectConfigFB(){}
@@ -10,14 +21,20 @@ CBacnetObjectConfigFB::~CBacnetObjectConfigFB(){}
 void CBacnetObjectConfigFB::executeEvent(int pa_nEIID) {
   if(BACnetAdapterIn().INIT() == pa_nEIID && QI()) {
 
-    if(init()) {
+    const char *error = init();
+
+    if(error = 0){
       QO() = true;
-      STATUS() = scmOK;
+      STATUS() = scmInitOK;
+      setEventChainExecutor(m_poInvokingExecEnv);
+    } else {
+      QO() = false;
+      STATUS() = error;
       setEventChainExecutor(m_poInvokingExecEnv);
     }
 
-
     if(BACnetAdapterOut().getPeer() == 0) {
+      // pass the INITO back
       sendAdapterEvent(scm_nBACnetAdapterInAdpNum, FORTE_BACnetAdapter::scm_nEventINITOID);
     } else {
       // forward init

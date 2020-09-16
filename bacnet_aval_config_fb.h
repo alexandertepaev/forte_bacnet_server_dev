@@ -1,14 +1,14 @@
-/*************************************************************************
- *** FORTE Library Element
- ***
- *** This file was generated using the 4DIAC FORTE Export Filter V1.0.x!
- ***
- *** Name: BACnetAnalogValue
- *** Description: Service Interface Function Block Type
- *** Version: 
- ***     1.0: 2020-02-02/root -  - 
- *************************************************************************/
-
+/*******************************************************************************
+ * Copyright (c) 2020 Alexander Tepaev github.com/alexandertepaev
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ * Contributors:
+ *   Alexander Tepaev
+ *******************************************************************************/
 #ifndef _BACNETANALOGVALUE_H_
 #define _BACNETANALOGVALUE_H_
 
@@ -23,11 +23,35 @@
 
 class CBacnetAnalogValueObject;
 
-// class FORTE_BACnetAnalogValue: public CFunctionBlock{
-class FORTE_BACnetAnalogValue: public CBacnetObjectConfigFB{
+/*! @brief Analog Value BACnet object configuration FB
+ * 
+ * This class is a concrete class of the CBacnetObjectConfigFB and represents a Analog Value 
+ * BACnet object configuration FB.
+ * Creates an instance of CBacnetAnalogValueObject, sets its parameters and updates 
+ * server controller's object table and COVReporters list in case the object is configured to send
+ * COV notifications.
+ * Overrides executeEvent and init methods of the base class.
+ * Implements updatePresentValueOutput method.  
+ */
+class CBacnetAnalogValueConfigFB: public CBacnetObjectConfigFB{
+  DECLARE_FIRMWARE_FB(CBacnetAnalogValueConfigFB)
 
+public:
+  CBacnetAnalogValueConfigFB(const CStringDictionary::TStringId pa_nInstanceNameId, CResource *pa_poSrcRes);
+  ~CBacnetAnalogValueConfigFB();
 
-  DECLARE_FIRMWARE_FB(FORTE_BACnetAnalogValue)
+protected:
+  /*! @brief Initializes BACnet Analog Value object
+   *
+   * This method is responsible for the initialization of the a BACnet Analog Value.
+   * In particular, it creates an instance of CBacnetAnalogValueObject object, pushes it into the server controller's 
+   * object table, and, if needed, updates server controller's COVReporters list. 
+   * After these steps, updates present value output of the configuration fb by calling updatePresentValueOutput method.
+   * 
+   * @return 0 on success, string containing error message otherwise
+   */
+  const char * init();
+  CBacnetAnalogValueObject *mObject; //!< Pointer to the CBacnetAnalogValueObject created in init method
 
 private:
   static const CStringDictionary::TStringId scm_anDataInputNames[];
@@ -100,26 +124,34 @@ private:
   static const int scm_nBACnetAdapterInAdpNum = 1;
   static const SFBInterfaceSpec scm_stFBInterfaceSpec;
 
-   FORTE_FB_DATA_ARRAY(1, 8, 3, 2);
+  FORTE_FB_DATA_ARRAY(1, 8, 3, 2);
 
+
+  /*! @brief Handles input events 
+   *
+   * This method represents execution entry point of BACnet Analog Value Object configuration FB.
+   * Handles external (cg_nExternalEventID) and write present value (scm_nEventWRITE_PR_VALID) events.
+   * In other cases, passes the control to CBacnetObjectConfigFB class (calls its executeEvent).
+   * External event means, that the Present Value property of the underlying object was updated using BACnet 
+   * WriteProperty service request.
+   * scm_nEventWRITE_PR_VALID event means, that the present value property was updated from within the IEC 61499
+   * application.
+   * In both cases triggers IND output event.
+   * 
+   * @param pa_nEIID ID of the triggered input event
+   */
   void executeEvent(int pa_nEIID);
 
+
+  /*! @brief Updates PresentValueOut output of the configuration FB
+   *
+   * This method is used for updating the PresentValueOut output.
+   * 
+   * @param paValue New value of the output
+   * @param paFireIndEvent Specifies, if the IND event has to be fired after updating the output
+   */
   void updatePresentValueOutput(float paValue, bool paFireIndEvent);
-
-protected:
-  bool init();
-
-  CBacnetAnalogValueObject *mObject;
-
-public:
-  FORTE_BACnetAnalogValue(const CStringDictionary::TStringId pa_nInstanceNameId, CResource *pa_poSrcRes);
-  ~FORTE_BACnetAnalogValue();
-  // FUNCTION_BLOCK_CTOR(FORTE_BACnetAnalogValue){
-  // };
-
-  // virtual ~FORTE_BACnetAnalogValue(){};
-
 };
 
-#endif //close the ifdef sequence from the beginning of the file
+#endif
 
