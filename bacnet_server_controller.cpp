@@ -16,7 +16,9 @@
 #include "objects/bacnet_cov_reporting_object.h"
 #include "bacnet_server_controller.h"
 
-CBacnetServerController::CBacnetServerController(CDeviceExecution& paDeviceExecution): CExternalEventHandler(paDeviceExecution), mObjectTable(NULL), mCOVReporters(NULL) {
+
+
+CBacnetServerController::CBacnetServerController(CDeviceExecution& paDeviceExecution, TForteUInt16 paID): CExternalEventHandler(paDeviceExecution), m_nID(paID), mObjectTable(NULL), mCOVReporters(NULL) {
 
 }
 
@@ -25,6 +27,8 @@ CBacnetServerController::~CBacnetServerController() {
 }
 
 const char* CBacnetServerController::init(TForteUInt16 paPort) {
+  DEVLOG_DEBUG("[CBacnetServerController] init(): Controller ID: %d\n", m_nID);
+
   // object table
   mObjectTable = new TObjectTable();
   
@@ -368,7 +372,7 @@ void CBacnetServerController::handleWhoIsRequest(const TForteUInt16 &paServiceRe
   const CBacnetObject *obj = (*mObjectTable->begin());
   // compare and send I-Am 
   if(len >= 0 && (obj->mObjectID >= deviceIDLowerBound && obj->mObjectID <= deviceIDUpperBound)) {
-    DEVLOG_DEBUG("[CBacnetServerController] handleWhoIsRequest(): Received WhoIs request, sending IAm\n");
+    DEVLOG_DEBUG("[CBacnetServerController] handleWhoIsRequest(): Received Who-Is request, sending I-Am\n");
     BACNET_ADDRESS dest = ipToBacnetAddress(m_stServerConfig.stBroadcastAddr, m_stServerConfig.nPort, true);
     BACNET_ADDRESS src = ipToBacnetAddress(m_stServerConfig.stLocalAddr, m_stServerConfig.nPort, false);
     BACNET_NPDU_DATA NPDUData;

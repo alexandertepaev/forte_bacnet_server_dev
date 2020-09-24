@@ -45,7 +45,7 @@ class CBacnetCOVReportingObject;
 class CBacnetServerController: protected CThread, protected CExternalEventHandler {
   friend class CBacnetServerConfigFB;
 public:
-  CBacnetServerController(CDeviceExecution& paDeviceExecution);
+  CBacnetServerController(CDeviceExecution& paDeviceExecution, TForteUInt16 paID);
   ~CBacnetServerController();
 
   /*! @brief Adds a new object into the mObjectTable object table
@@ -66,10 +66,15 @@ public:
    */
   void addCOVReportersEntry(CBacnetCOVReportingObject *paObject);
 
+  TForteUInt16 getControllerID() {
+    return m_nID;
+  }
+
 protected:
     
 private:
 
+  TForteUInt16 m_nID; //! ID of the controller instance
 
   TForteUInt8 mSendBuffer[MAX_MPDU]; //!< Buffer for outgoing packets
   TForteUInt8 mReceiveBuffer[MAX_MPDU]; //!< Buffer for incoming packets

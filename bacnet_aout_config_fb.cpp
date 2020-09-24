@@ -73,7 +73,7 @@ const char * CBacnetAnalogOutputConfigFB::init(){
   // create new object
   mObject = new CBacnetAnalogOutputObject(ObjectID(), PresentValueInit(), COVReporting(), COVIncrement(), this);
   // get server controller and update its data structures
-  CBacnetServerController *controller = CBacnetServerConfigFB::getServerController();
+  CBacnetServerController *controller = CBacnetServerConfigFB::getServerController(BACnetAdapterIn().ControllerID());
   if(controller == NULL)
     return scmInitFailed;
   controller->addObjectTableEntry(mObject);

@@ -11,5 +11,8 @@
     <EventOutputs>
       <Event Comment="Confirmation from Plug" Name="INIT" Type="Event"/>
     </EventOutputs>
+    <OutputVars>
+      <VarDeclaration Name="ControllerID" Type="UINT" Comment="ID of the Server Controller Instance"/>
+    </OutputVars>
   </InterfaceList>
 </AdapterType>

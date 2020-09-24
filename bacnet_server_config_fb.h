@@ -24,6 +24,8 @@
 class CBacnetServerController;
 class CBacnetDeviceObject;
 
+typedef CSinglyLinkedList<CBacnetServerController *> TControllerList;
+
 /*! @brief BACnet Server configuration FB class
  *
  * BACnet Server configuration FB class, which represents a FB standing in the head of the Server 
@@ -45,11 +47,22 @@ public:
    * This method returns a pointer to server controller instance.
    * Used by derivatives of CBacnetObjectConfigFB. 
    * 
+   * @param paControllerID Numeric value indicating ID of the Server Controller
    * @return Pointer to server controller instance
    */
-  static CBacnetServerController* getServerController();
+  static CBacnetServerController* getServerController(TForteUInt16 paControllerID);
 
 private:
+
+  static TForteUInt16 sm_nControllerCounter; //! Static member for counting Server Controller instances, 
+
+  static TControllerList smControllerInstances; //! Static list holding Server Controller instances
+
+  CBacnetServerController *mController; //!< Pointer to the assigned Server Controller instance
+
+  CBacnetDeviceObject *mDeviceObject; //!< Pointer to BACnet Device Object instance
+
+
   static const CStringDictionary::TStringId scm_anDataInputNames[];
   static const CStringDictionary::TStringId scm_anDataInputTypeIds[];
   CIEC_BOOL &QI() {
@@ -118,22 +131,14 @@ private:
   /*! @brief Initializes BACnet server controller
    *
    * This method is used for the initialization of the BACnet server controller.
-   * The initialization is performed by creating the client controller and adding a 
-   * new instance of BACnet Device object into its object list.
+   * The initialization is performed by creating the client controller, pushing this instance
+   * to the static list of controller instances and eventually adding a new instance of BACnet Device 
+   * object into controller's object list.
    * // TODO lot of duplicate code, more abstraction needed
    * 
    * @return String containing error message, or 0 in case of success
    */
   const char* init();
-
-  // FIXME: static -> same for all instances, rm static or create 
-  // static list of server controllers and assign unique ID to each server controller -> in 
-  // getServer controller look up for a specific server controller
-  static CBacnetServerController *mController; //!< Static pointer to Server Controller instance
-
-  CBacnetDeviceObject *mDeviceObject; //!< Pointer to BACnet Device Object instance
-
-
 };
 
 #endif

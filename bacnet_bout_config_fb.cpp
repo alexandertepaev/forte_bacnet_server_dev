@@ -75,7 +75,7 @@ const char *CBacnetBinaryOutputConfigFB::init() {
   // create new object
   mObject = new CBacnetBinaryOutputObject(ObjectID(), PresentValueInit(), COVReporting(), this);
   // get server controller and update its data structures
-  CBacnetServerController *controller = CBacnetServerConfigFB::getServerController();
+  CBacnetServerController *controller = CBacnetServerConfigFB::getServerController(BACnetAdapterIn().ControllerID());
   if(controller == NULL)
     return scmInitFailed;
   controller->addObjectTableEntry(mObject);

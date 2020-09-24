@@ -24,7 +24,8 @@
 #include <core/resource.h>
 #include <core/device.h>
 
-CBacnetServerController *CBacnetServerConfigFB::mController = NULL;
+TForteUInt16 CBacnetServerConfigFB::sm_nControllerCounter = 0;
+TControllerList CBacnetServerConfigFB::smControllerInstances;
 
 DEFINE_FIRMWARE_FB(CBacnetServerConfigFB, g_nStringIdBACnetServer)
 
@@ -55,7 +56,7 @@ const SFBInterfaceSpec CBacnetServerConfigFB::scm_stFBInterfaceSpec = {
 
 
 CBacnetServerConfigFB::CBacnetServerConfigFB(const CStringDictionary::TStringId pa_nInstanceNameId, CResource *pa_poSrcRes) : \
-CBacnetObjectConfigFB(pa_poSrcRes, &scm_stFBInterfaceSpec, pa_nInstanceNameId, m_anFBConnData, m_anFBVarsData)
+CBacnetObjectConfigFB(pa_poSrcRes, &scm_stFBInterfaceSpec, pa_nInstanceNameId, m_anFBConnData, m_anFBVarsData), mController(NULL)
 {
 }
 
@@ -70,6 +71,7 @@ void CBacnetServerConfigFB::executeEvent(int pa_nEIID){
     if(0 == error) {
       if (BACnetAdapterOut().getPeer() != 0) {
         // Pass the INIT event to the next config FB
+        BACnetAdapterOut().ControllerID() = mController->getControllerID();
         sendAdapterEvent(scm_nBACnetAdapterOutAdpNum, FORTE_BACnetAdapter::scm_nEventINITID);
       } else {
         // no chained FBs, only Who-Is/I-Am service requests are handled
@@ -80,7 +82,7 @@ void CBacnetServerConfigFB::executeEvent(int pa_nEIID){
       }  
     } else {
       QO() = false;
-      // STATUS() = error;
+      STATUS() = scmInitFailed;
       sendOutputEvent(scm_nEventINITOID);
     }
   } else if(pa_nEIID == BACnetAdapterOut().INITO()) {
@@ -95,11 +97,14 @@ void CBacnetServerConfigFB::executeEvent(int pa_nEIID){
 
 const char* CBacnetServerConfigFB::init() {
   // create and init server controller
-  mController = new CBacnetServerController(getResource().getDevice().getDeviceExecution());
+  mController = new CBacnetServerController(getResource().getDevice().getDeviceExecution(), sm_nControllerCounter++);
   const char *error = mController->init(Port());
   
   if(error != 0)
     return error; // TODO deinit controller
+
+  // Update list of controller instances
+  smControllerInstances.pushBack(mController);
 
   // Add new object into controller's obj table
   mDeviceObject = new CBacnetDeviceObject(DeviceID(), this);
@@ -108,8 +113,14 @@ const char* CBacnetServerConfigFB::init() {
   return 0;
 }
 
-CBacnetServerController* CBacnetServerConfigFB::getServerController() {
-  return mController;
+CBacnetServerController* CBacnetServerConfigFB::getServerController(TForteUInt16 paControllerID) {
+  TControllerList::Iterator itEnd = smControllerInstances.end();
+  for(TControllerList::Iterator it = smControllerInstances.begin(); it != itEnd; ++it) {
+    if(paControllerID == (*it)->getControllerID()) {
+      return *it;
+    }
+  }
+  return NULL;
 }
 
 

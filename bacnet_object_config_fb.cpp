@@ -37,6 +37,7 @@ void CBacnetObjectConfigFB::executeEvent(int pa_nEIID) {
       sendAdapterEvent(scm_nBACnetAdapterInAdpNum, FORTE_BACnetAdapter::scm_nEventINITOID);
     } else {
       // forward init
+      BACnetAdapterOut().ControllerID() = BACnetAdapterIn().ControllerID();
       sendAdapterEvent(scm_nBACnetAdapterOutAdpNum, FORTE_BACnetAdapter::scm_nEventINITID);
     }
   } else if (BACnetAdapterOut().INITO() == pa_nEIID && QI()) {

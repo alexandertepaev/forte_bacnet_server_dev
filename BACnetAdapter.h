@@ -18,7 +18,13 @@ class FORTE_BACnetAdapter: public CAdapter{
   DECLARE_ADAPTER_TYPE(FORTE_BACnetAdapter)
 
 private:
+  static const CStringDictionary::TStringId scm_anDataOutputNames[];
+  static const CStringDictionary::TStringId scm_anDataOutputTypeIds[];
  public:
+  CIEC_UINT &ControllerID() {
+    return *static_cast<CIEC_UINT*>((isSocket()) ? getDO(1) : getDI(1));
+  }
+
   static const TEventID scm_nEventINITOID = 0;
   int INITO() {
     return m_nParentAdapterListEventID + scm_nEventINITOID;
@@ -34,13 +40,14 @@ private:
   }
  private:
   static const TForteInt16 scm_anEOWithIndexes[];
+  static const TDataIOID scm_anEOWith[];
   static const CStringDictionary::TStringId scm_anEventOutputNames[];
 
   static const SFBInterfaceSpec scm_stFBInterfaceSpecSocket;
 
   static const SFBInterfaceSpec scm_stFBInterfaceSpecPlug;
 
-   FORTE_ADAPTER_DATA_ARRAY(1, 1, 0, 0, 0);
+   FORTE_ADAPTER_DATA_ARRAY(1, 1, 0, 1, 0);
 
 public:
   ADAPTER_CTOR(FORTE_BACnetAdapter){
