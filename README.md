@@ -19,15 +19,16 @@ Tested on:
 ## Compiling 4diac FORTE with BACnet Server module 
 ### Compiling for a Linux PC using cmake
 1. Create a folder for forte's external module (e.g., 'external_modules') and clone this repo into it by executing 'git clone https://github.com/alexandertepaev/forte_bacnet_server_dev.git'
-2. Download the [BACnet protocol stack 0.8.6](https://sourceforge.net/projects/bacnet/files/bacnet-stack/bacnet-stack-0.8.6/) and unpack it.
-3. Compile the BACnet protocol stack library by executing 'make' command in its root folder.
-4. Download [4diac FORTE 1.12.0 sources](https://www.eclipse.org/downloads/download.php?file=/4diac/releases/1.12/forte/forte-incubation_1.12.0.zip) and unpack it.
-5. Now configure 4diac FORTE from source using cmake as described in [this](https://www.eclipse.org/4diac/en_help.php?helppage=html/installation/install.html) documentation article. When generating Makefiles, make sure you set CMAKE_BUILD_TYPE to 'Debug', FORTE_ARCHITECTURE to Posix, check the FORTE_MODULE_IEC61131 modules and set the FORTE_EXTERNAL_MODULES_DIRECTORY to the directory created in Step 1.
-6. After hitting the 'configure' button, check the FORTE_MODULE_BAcnetServer box. Hit 'Configure'.
-7. Provide cmake with a path to the root folder of the BACnet Stack library from Step 2.
-8. Hit 'configure' + 'generate'
-9. Switch to folder with the build and execute 'make' command there
-10. Run forte using ./forte
+2. **Set the name of the network interface you're using for communication by changing the *scm_sNetwrokIfaceName* variable found in the bacnet_server_controller.h file.**
+3. Download the [BACnet protocol stack 0.8.6](https://sourceforge.net/projects/bacnet/files/bacnet-stack/bacnet-stack-0.8.6/) and unpack it.
+4. Compile the BACnet protocol stack library by executing 'make' command in its root folder.
+5. Download [4diac FORTE 1.12.0 sources](https://www.eclipse.org/downloads/download.php?file=/4diac/releases/1.12/forte/forte-incubation_1.12.0.zip) and unpack it.
+6. Now configure 4diac FORTE from source using cmake as described in [this](https://www.eclipse.org/4diac/en_help.php?helppage=html/installation/install.html) documentation article. When generating Makefiles, make sure you set CMAKE_BUILD_TYPE to 'Debug', FORTE_ARCHITECTURE to Posix, check the FORTE_MODULE_IEC61131 modules and set the FORTE_EXTERNAL_MODULES_DIRECTORY to the directory created in Step 1.
+7. After hitting the 'configure' button, check the FORTE_MODULE_BAcnetServer box. Hit 'Configure'.
+8. Provide cmake with a path to the root folder of the BACnet Stack library from Step 2.
+9. Hit 'configure' + 'generate'
+10. Switch to folder with the build and execute 'make' command there
+11. Run forte using ./forte
 
 ### Crosscompiling for the Raspbian Buster
 TODO

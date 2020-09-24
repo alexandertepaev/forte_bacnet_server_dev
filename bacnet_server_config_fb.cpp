@@ -54,8 +54,6 @@ const SFBInterfaceSpec CBacnetServerConfigFB::scm_stFBInterfaceSpec = {
   1,scm_astAdapterInstances};
 
 
-// CBacnetServerConfigFB::CBacnetServerConfigFB(const CStringDictionary::TStringId pa_nInstanceNameId, CResource *pa_poSrcRes) : \
- forte::core::io::IOConfigFBBase(pa_poSrcRes, &scm_stFBInterfaceSpec, pa_nInstanceNameId, m_anFBConnData, m_anFBVarsData)
 CBacnetServerConfigFB::CBacnetServerConfigFB(const CStringDictionary::TStringId pa_nInstanceNameId, CResource *pa_poSrcRes) : \
 CBacnetObjectConfigFB(pa_poSrcRes, &scm_stFBInterfaceSpec, pa_nInstanceNameId, m_anFBConnData, m_anFBVarsData)
 {

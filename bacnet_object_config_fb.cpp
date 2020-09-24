@@ -11,7 +11,6 @@
  *******************************************************************************/
 #include "bacnet_object_config_fb.h"
 
-// CBacnetObjectConfigFB::CBacnetObjectConfigFB(CResource *paSrcRes, const SFBInterfaceSpec *paInterfaceSpec, const CStringDictionary::TStringId paInstanceNameId, TForteByte *paFBConnData, TForteByte *paFBVarsData) : forte::core::io::IOConfigFBBase(paSrcRes, paInterfaceSpec, paInstanceNameId, paFBConnData, paFBVarsData) {}
 CBacnetObjectConfigFB::CBacnetObjectConfigFB(CResource *paSrcRes, const SFBInterfaceSpec *paInterfaceSpec, const CStringDictionary::TStringId paInstanceNameId, TForteByte *paFBConnData, TForteByte *paFBVarsData) : CEventSourceFB(paSrcRes, paInterfaceSpec, paInstanceNameId, paFBConnData, paFBVarsData) {}
  
 
@@ -23,7 +22,7 @@ void CBacnetObjectConfigFB::executeEvent(int pa_nEIID) {
 
     const char *error = init();
 
-    if(error = 0){
+    if(0 == error){
       QO() = true;
       STATUS() = scmInitOK;
       setEventChainExecutor(m_poInvokingExecEnv);
