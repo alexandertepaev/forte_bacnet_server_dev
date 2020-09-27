@@ -13,12 +13,6 @@
 #ifdef FORTE_ENABLE_GENERATED_SOURCE_CPP
 #include "bacnet_bin_config_fb_gen.cpp"
 #endif
-#ifdef FORTE_ENABLE_GENERATED_SOURCE_CPP
-#include "BACnetBinaryInput_gen.cpp"
-#endif
-#ifdef FORTE_ENABLE_GENERATED_SOURCE_CPP
-#include "BACnetBinaryInput_gen.cpp"
-#endif
 
 #include "objects/bacnet_binary_input_object.h"
 #include "bacnet_server_controller.h"

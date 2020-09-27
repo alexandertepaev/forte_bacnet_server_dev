@@ -13,9 +13,6 @@
 #ifdef FORTE_ENABLE_GENERATED_SOURCE_CPP
 #include "bacnet_ain_config_fb_gen.cpp"
 #endif
-#ifdef FORTE_ENABLE_GENERATED_SOURCE_CPP
-#include "BACnetAnalogInput_gen.cpp"
-#endif
 
 #include "objects/bacnet_analog_input_object.h"
 #include "bacnet_server_controller.h"

@@ -12,7 +12,7 @@
 #ifndef _BACNET_OBJCET_H_
 #define _BACNET_OBJCET_H_
 
-#include "../bacnet.h"
+#include "../forte_bacnet.h"
 #include "../bacnet_object_config_fb.h"
 
 class CBacnetObjectConfigFB;

@@ -40,8 +40,6 @@
 
 #include "rp.h"
 #include "wp.h"
-// #include "bip.h"
-// #include "bvlc.h"
 #include "whois.h"
 #include "iam.h"
 #include "cov.h"

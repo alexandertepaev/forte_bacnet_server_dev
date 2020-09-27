@@ -494,7 +494,7 @@ void CBacnetServerController::sendCOVReports(SCOVReporter *paCOVReporter) {
     cov_data.timeRemaining = (*it)->stCOVData.lifetime;
     cov_data.listOfValues = valueList;
     // encode unconfirmed cov
-    PDULen = (TForteUInt16) (PDULen + ucov_notify_encode_apdu(&mSendBuffer[PDULen], &cov_data));
+    PDULen = (TForteUInt16) (PDULen + ucov_notify_encode_apdu(&mSendBuffer[PDULen], (unsigned int) (sizeof(mSendBuffer) - PDULen), &cov_data));
     // bvlc header
     mSendBuffer[BVLC_TYPE_BYTE] = BVLL_TYPE_BACNET_IP;
     mSendBuffer[BVLC_FUNCTION_BYTE] = BVLC_ORIGINAL_UNICAST_NPDU;

@@ -14,9 +14,6 @@
 #ifdef FORTE_ENABLE_GENERATED_SOURCE_CPP
 #include "bacnet_bout_config_fb_gen.cpp"
 #endif
-#ifdef FORTE_ENABLE_GENERATED_SOURCE_CPP
-#include "BACnetBinaryOutput_gen.cpp"
-#endif
 
 #include "objects/bacnet_binary_output_object.h"
 #include "bacnet_server_controller.h"

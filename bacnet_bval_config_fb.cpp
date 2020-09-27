@@ -14,9 +14,6 @@
 #ifdef FORTE_ENABLE_GENERATED_SOURCE_CPP
 #include "bacnet_bval_config_fb_gen.cpp"
 #endif
-#ifdef FORTE_ENABLE_GENERATED_SOURCE_CPP
-#include "BACnetBinaryValue_gen.cpp"
-#endif
 
 #include "objects/bacnet_binary_value_object.h"
 #include "bacnet_server_controller.h"

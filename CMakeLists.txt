@@ -17,11 +17,19 @@ if(FORTE_MODULE_BACnetServer)
 
   ### BACnet Stack Library
   SET(BACNET_STACK_DIR "" CACHE PATH "Root directory of BACnet Stack library")
+
   if(EXISTS ${BACNET_STACK_DIR})
-    forte_add_include_directories(${BACNET_STACK_DIR}/include)
-    forte_add_include_directories(${BACNET_STACK_DIR}/ports/linux)
-    forte_add_link_directories(${BACNET_STACK_DIR}/lib)
-    forte_add_link_library( libbacnet.a )
+    forte_add_include_directories(${BACNET_STACK_DIR}/src)
+    forte_add_include_directories(${BACNET_STACK_DIR}/src/bacnet)
+    forte_add_include_directories(${BACNET_STACK_DIR}/src/bacnet/datalink)
+    
+    SET(BACNET_STACK_BUILD_DIR "" CACHE PATH "Build directory of BACnet Stack library")
+    if(EXISTS ${BACNET_STACK_BUILD_DIR})
+      forte_add_link_directories(${BACNET_STACK_BUILD_DIR})
+      forte_add_link_library(libbacnet-stack.a)
+    else()
+      message(FATAL_ERROR "Provide correct path to BACnet Stack library build directory")
+    endif()
   else()
     message(FATAL_ERROR "Provide correct path to BACnet Stack library root directory")
   endif()

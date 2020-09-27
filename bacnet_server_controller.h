@@ -24,7 +24,7 @@
 #include <arpa/inet.h>
 
 #include <core/io/device/io_controller.h>
-#include "bacnet.h"
+#include "forte_bacnet.h"
 
 class CBacnetObject;
 class CBacnetCOVReportingObject;
